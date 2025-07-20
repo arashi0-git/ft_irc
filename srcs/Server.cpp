@@ -1,5 +1,37 @@
 #include "Server.hpp"
 
+void Server::handleClient(int fd) {
+    char buffer[1024];
+    std::memset(buffer, 0, sizeof(buffer));
+
+    ssize_t bytesReceived = recv(fd, buffer, sizeof(buffer), -1, 0);
+    if (bytesReceived < 0) {
+        std::cerr << "recv failed on fd " << fd << std::endl;
+        disconnectClient(fd);
+        return;
+    }
+    if (bytesReceived == 0) {
+        std::cout << "Client disconnected fd = " << fd << std::endl;
+        disconnectClient(fd);
+        return;
+    }
+    std::string message(buffer, bytesReceived);
+    std::cout << "Received from fd " << fd << ";" << message;
+}
+
+void Server::acceptNewClient() {
+    int newSocket = accept(_serverSocket, NULL, NULL);
+    if (newSocket < 0) {
+        throw std::runtime_error("accept failed");
+    }
+    struct pollfd pfd;
+    pfd.fd = newSocket;
+    pfd.events = POLLIN;
+    pfd.revents = 0;
+    _fds.push_back(pfd);
+    std::cout << "New client connected fd = " << newSocket << std::endl;
+}
+
 void Server::run() {
     while (true) {
         int pollresult = poll(_fds.data(), _fds.size(), -1);

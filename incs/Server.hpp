@@ -22,6 +22,8 @@ class Server {
         void run();
         void setupSocket();
         void initializePoll();
+        void acceptNewClient();
+        void handleClient(int fd);
 };
 
 #endif
