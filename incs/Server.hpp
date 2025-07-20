@@ -8,6 +8,9 @@
 #include <unistd.h>
 #include <cstring>
 #include <stdexcept>
+#include <poll.h>
+
+std::vector<struct pollfd> _fds;
 
 class Server {
     private:
@@ -18,6 +21,7 @@ class Server {
         Server(const ServerConfig &config);
         void run();
         void setupSocket();
+        void initializePoll();
 };
 
 #endif
