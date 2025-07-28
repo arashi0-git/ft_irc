@@ -17,5 +17,22 @@ void Server::handleTopic(int fd, std::istringstream &iss) {
         return;
     }
 
-    
+    if (_channels.find(channelName) == _channels.end()) {
+        sendError(fd, "403 " + channelName + " :No such channel");
+        return;
+    }
+
+    if (!_channels[channelName].hasMember(fd)){
+        sendError(fd, "482 " + channelName + " :You're not on that channel");
+        return;
+    }
+
+    if (!channel.isOperator(fd)) {
+        sendError(fd, "482 " + channelName + " :You're not channel operator");
+        return;
+    }
+
+    if (topic.empty()) {
+        
+    }
 }
