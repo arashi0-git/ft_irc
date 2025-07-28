@@ -17,22 +17,40 @@ void Server::handleTopic(int fd, std::istringstream &iss) {
         return;
     }
 
+    
     if (_channels.find(channelName) == _channels.end()) {
         sendError(fd, "403 " + channelName + " :No such channel");
         return;
     }
+    
+    Channel &channel = _channels[channelName];
 
-    if (!_channels[channelName].hasMember(fd)){
+    if (!channel.hasMember(fd)){
         sendError(fd, "482 " + channelName + " :You're not on that channel");
         return;
     }
 
-    if (!channel.isOperator(fd)) {
-        sendError(fd, "482 " + channelName + " :You're not channel operator");
-        return;
-    }
-
     if (topic.empty()) {
-        
+        if (channel.getTopic().empty()) {
+            std::string msg = "331 " + _clients[fd].getNickname() + " " + channelName + " :No topic is set\r\n";
+            send(fd, msg.c_str(), msg.length(), 0);
+        }
+        else {
+            std::string msg2 = "332 " + _clients[fd].getNickname() + " " + channelName + " :" + channel.getTopic() + "\r\n";
+            send(fd, msg2.c_str(), msg2.length(), 0);
+        }
+    }
+    else {
+        if (!channel.isOperator(fd)) {
+            sendError(fd, "482 " + channelName + " :You're not channel operator");
+            return;
+        }
+        if (!topic.empty() && topic[0] == ':')
+            topic = topic.substr(1);
+        channel.setTopic(topic);
+        std::string msg = ":" + _clients[fd].getNickname() + " TOPIC " + channelName + ": " + topic + "\r\n";
+        for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
+            send(*it, msg.c_str(), msg.length(), 0);
+        }
     }
 }

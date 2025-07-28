@@ -240,3 +240,12 @@ if (channelName[0] != '#') {
 ```
 
 * channel名の先頭に"#"がついてるかどうか
+
+```C++
+std::string msg = ":" + _clients[fd].getNickname() + " TOPIC " + channelName + ": " + topic + "\r\n";
+        for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
+            send(*it, msg.c_str(), msg.length(), 0);
+        }
+```
+
+* channel内のmemberになにかメッセージを送る
