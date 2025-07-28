@@ -183,3 +183,60 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout);
 * nfds：監視対象の数（fdsの要素数）
 * timeout：タイムアウト時間-1にすると無限秒
 * 返り値：>0->イベントが発生したfdの数、0->タイムアウト何も起こらなかった、<0->エラー
+
+### TCP通信はストリーム型（区切りなし）
+
+* サーバーは「どこまでが一つのメッセージなのか」を自分で判断する必要がある
+* \r\nまたは\nで終わるのが一般的
+
+```C++
+if (!channel.hasMember(fd)) {
+        sendError(fd, "442 " + channelName + " :You're not on that channel");
+        return;
+    }
+```
+
+* 呼び出し元（fd）がそのチャンネルのメンバーかどうか
+
+```C++
+if (_channels.find(channelName) == _channels.end()) {
+        sendError(fd, "403 " + channelName + " :No such channel");
+        return;
+    }
+```
+
+* チャンネルが存在するか
+
+```C++
+if (!channel.isOperator(fd)) {
+        sendError(fd, "482 " + channelName + " :You're not channel operator");
+        return;
+    }
+```
+
+* チャンネルのオペレーターか
+
+```C++
+int userFd = -1;
+    for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        if (it->second.getNickname() == user) {
+            userFd = it->first;
+            break;
+        }
+    }
+    if (userFd == -1) {
+        sendError(fd, "401 " + user + " :No such nick");
+        return;
+    }
+```
+
+* チャンネル内のユーザーのfdを取得
+
+```C++
+if (channelName[0] != '#') {
+        sendError(fd, "476 " + channelName + " :Invalid channel name");
+        return;
+    }
+```
+
+* channel名の先頭に"#"がついてるかどうか

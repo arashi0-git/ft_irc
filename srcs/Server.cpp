@@ -1,10 +1,24 @@
 #include "Server.hpp"
 
+void Server::disconnectClient(int fd) {
+    close(fd);
+
+    for (std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
+        if (it->fd == fd) {
+            _fds.erase(it);
+            break;
+        }
+    }
+
+    _clients.erase(fd);
+    clientBuffer.erase(fd);
+}
+
 void Server::handleClient(int fd) {
     char buffer[1024];
     std::memset(buffer, 0, sizeof(buffer));
 
-    ssize_t bytesReceived = recv(fd, buffer, sizeof(buffer), -1, 0);
+    ssize_t bytesReceived = recv(fd, buffer, sizeof(buffer), 0);
     if (bytesReceived < 0) {
         std::cerr << "recv failed on fd " << fd << std::endl;
         disconnectClient(fd);
@@ -15,8 +29,18 @@ void Server::handleClient(int fd) {
         disconnectClient(fd);
         return;
     }
-    std::string message(buffer, bytesReceived);
-    std::cout << "Received from fd " << fd << ";" << message;
+    if (bytesReceived > 0) {
+        clientBuffer[fd].append(buffer, bytesReceived);
+
+        size_t pos;
+        while ((pos = clientBuffer[fd].find('\n')) != std::string::npos) {
+            std::string line = clientBuffer[fd].substr(0, pos);
+            clientBuffer[fd].erase(0, pos + 1);
+            if (!line.empty() && line[line.length() - 1] == '\r')
+                line.erase(line.length() - 1);
+            processCommand(fd, line);
+        }
+    }
 }
 
 void Server::acceptNewClient() {
@@ -29,6 +53,7 @@ void Server::acceptNewClient() {
     pfd.events = POLLIN;
     pfd.revents = 0;
     _fds.push_back(pfd);
+    _clients[newSocket] = Client(newSocket);
     std::cout << "New client connected fd = " << newSocket << std::endl;
 }
 
