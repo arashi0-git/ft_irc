@@ -37,9 +37,14 @@ void Server::handleJoin(int fd, std::istringstream &iss) {
         return;
     }
 
+    if (channel.isInviteOnly() && !channel.isInvited(fd)) {
+        sendError(fd, "473 " + channelName + " :Cannot join channel (+i)");
+        return;
+    }
+
     channel.addMember(fd);
 
-    if (channel.getMembers().size() == 1) {
+    if (!channel.hasOperator() || channel.getMembers().size() == 1) {
         channel.addOperator(fd);
     }
 

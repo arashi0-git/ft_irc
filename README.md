@@ -249,3 +249,19 @@ std::string msg = ":" + _clients[fd].getNickname() + " TOPIC " + channelName + "
 ```
 
 * channel内のmemberになにかメッセージを送る
+
+```C++
+std::map<std::string, int>::iterator it = _nickToFd.find(target);
+    if (it == _nickToFd.end()) {
+        sendError(fd, "401 " + target + " :No such nick");
+        return;
+    }
+
+    int targetFd = it->second;
+    if (!channel.hasMember(targetFd)) {
+        sendError(fd, "441 " + target + " " + channelName + " :They aren't on that channel");
+        return;
+    }
+```
+
+* targetのfd取得mapを使用して高速化している

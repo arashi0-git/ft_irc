@@ -76,14 +76,17 @@ void Server::handleNick(int fd, std::istringstream &iss) {
         return;
     }
 
-    for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-        if (it->second.getNickname() == nickname && it->first != fd) {
-            sendError(fd, "433 :Nickname is already in use");
-            return;
-        }
+    if (_nickToFd.find(nickname) != _nickToFd.end() && _nickToFd[nickname] != fd) {
+        sendError(fd, "433 :Nickname is already in use");
+        return;
     }
 
+    std::string oldNick = _clinets[fd].getNickname();
+    if (!oldNick.empty())
+        _nickToFd.erase(oldNick);
+
     _clients[fd].setNickname(nickname);
+    _nickToFd[nickname] = fd;
 
     if (canAuthenticate(_clients[fd])) {
         _clients[fd].setAuthenticated(true);

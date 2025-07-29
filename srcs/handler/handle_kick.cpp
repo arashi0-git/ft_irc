@@ -58,6 +58,7 @@ void Server::handleKick(int fd, std::istringstream &iss) {
     }
 
     channel.removeMember(userFd);
+    
     if (channel.getMembers().size() == 0) {
         _channels.erase(channelName);
     }

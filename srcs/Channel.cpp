@@ -1,6 +1,6 @@
 #include "Channel.hpp"
 
-Channel::Channel(const std::string &name) : _name(name), _topic(""), _members(), _operators(){}
+Channel::Channel(const std::string &name) : _name(name), _topic(""), _members(), _operators(), _invited(), _inviteOnly(false){}
 
 Channel::~Channel() {}
 
@@ -14,7 +14,10 @@ void Channel::addMember(int fd) {
 
 void Channel::removeMember(int fd) {
     _members.erase(fd);
-    _operators.erase(fd);
+}
+
+void Channel::removeOperator(int fd) {
+    _members.erase(fd);
 }
 
 bool Channel::hasMember(int fd) const {
@@ -33,10 +36,30 @@ bool Channel::isOperator(int fd) const {
     return _operators.find(fd) != _operators.end();
 }
 
+bool Channel::hasOperator() const {
+    return !_operators.empty();
+}
+
 void Channel::setTopic(const std::string &topic) {
     _topic = topic;
 }
 
 const std::string &Channel::getTopic() const {
     return _topic;
+}
+
+void Channel::invite(int fd) {
+    _invited.insert(fd);
+}
+
+bool Channel::isInvited(int fd) const {
+    return _invited.count(fd);
+}
+
+void Channel::setInviteOnly(bool flag) {
+    _inviteOnly = flag;
+}
+
+bool Channel::isInviteOnly() const {
+    return _inviteOnly;
 }

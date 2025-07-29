@@ -23,6 +23,7 @@ class Server {
         std::vector<struct pollfd> _fds;
         std::map<int, std::string> clientBuffer;
         std::map<std::string, Channel> channels;
+        std::map<std::string, int> _nickToFd;
     
     public:
         Server(const ServerConfig &config);
@@ -42,6 +43,7 @@ class Server {
         void handleTopic(int fd, std::istringstream &iss);
         void handleMode(int fd, std::istringstream &iss);
         void handleInvite(int fd, std::istringstream &iss);
+        void handlePart(int fd, std::istringstream &iss);
         void sendError(int fd, const std::string &message);
         void sendWelcome(int fd);
         bool canAuthenticate(const Client &client) const;

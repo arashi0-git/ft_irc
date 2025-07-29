@@ -29,6 +29,8 @@ void Server::processCommand(int fd, const std::string &line) {
         handleMode(fd, iss);
     else if (command == "INVITE")
         handleInvite(fd, iss);
+    else if (command == "PART")
+        handlePart(fd, iss);
     else
         sendError(fd, "Unknown command");
 }
