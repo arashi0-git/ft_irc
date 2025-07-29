@@ -96,4 +96,28 @@ void Server::handleMode(int fd, std::istringstream &iss) {
             send(*it, msg.c_str(), msg.length(), 0);
         }
     }
+    else if ()
+    {
+        /* code */
+    }
+    else if (condition)
+    {
+        /* code */
+    }
+    else if (condition)
+    {
+        /* code */
+    }
+    else if (condition)
+    {
+        /* code */
+    }
+    else if (condition)
+    {
+        /* code */
+    }
+    else if (condition)
+    {
+        /* code */
+    }
 }
