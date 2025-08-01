@@ -12,6 +12,7 @@ class Channel {
         std::set<int> _operators;
         std::set<int> _invited;
         bool _inviteOnly;
+        bool _topicSet;
     public:
         Channel(const std::string &name);
         ~Channel();

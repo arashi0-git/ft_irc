@@ -1,7 +1,10 @@
 #include "Server.hpp"
 
-// MODE #channel +/-o target
+// MODE #channel +o/-o target
 // MODE #channel +i/-i
+// MODE #channel +l/-l limit
+// MODE #channel +t/-t
+// MODE #channel +k/-k key
 
 void Server::handleMode(int fd, std::istringstream &iss) {
     std::string channelName, mode, target;
@@ -54,11 +57,6 @@ void Server::handleMode(int fd, std::istringstream &iss) {
         return;
     }
 
-    if (mode.size() != 2 || (mode != "+o" && mode != "-o")) {
-        sendError(fd, "472 " + (mode.size() > 1 ? std::string(1, mode[1]) : mode) + " :is unknown mode char to me");
-        return;
-    }
-
     if (mode.size() == 2 && mode == '+i') {
         channel.setInviteOnly(true);
 
@@ -70,6 +68,24 @@ void Server::handleMode(int fd, std::istringstream &iss) {
     else if (mode.size() == 2 && mode == '-i') {
         channel.setInviteOnly(false);
         std::string msg = ":" + _clients[fd].getNickname() + " MODE " + channelName + " -i\r\n";
+        for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
+            send(*it, msg.c_str(), msg.length(), 0);
+        }
+    }
+    else if (mode.size() == 2 && mode == '+t')
+    {
+        channel.setTopicSet(true);
+
+        std::string msg = ":" + _clients[fd].getNickname() + " MODE " + channelName + " +t\r\n";
+        for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
+            send(*it, msg.c_str(), msg.length(), 0);
+        }
+    }
+    else if (mode.size() == 2 && mode == '-t')
+    {
+        channel.setTopicSet(false);
+
+        std::string msg = ":" + _clients[fd].getNickname() + " MODE " + channelName + " +t\r\n";
         for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
             send(*it, msg.c_str(), msg.length(), 0);
         }
@@ -96,28 +112,24 @@ void Server::handleMode(int fd, std::istringstream &iss) {
             send(*it, msg.c_str(), msg.length(), 0);
         }
     }
-    else if ()
+    else if (mode.size() == 2 && mode == '+k')
     {
         /* code */
     }
-    else if (condition)
+    else if (mode.size() == 2 && mode == '-k')
     {
         /* code */
     }
-    else if (condition)
+    else if (mode.size() == 2 && mode == '+l')
     {
         /* code */
     }
-    else if (condition)
+    else if (mode.size() == 2 && mode == '-l')
     {
         /* code */
     }
-    else if (condition)
-    {
-        /* code */
-    }
-    else if (condition)
-    {
-        /* code */
+    else {
+        sendError(fd, "472 " + (mode.size() > 1 ? std::string(1, mode[1]) : mode) + " :is unknown mode char to me");
+        return;
     }
 }
