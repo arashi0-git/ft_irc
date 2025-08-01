@@ -108,7 +108,7 @@ void Server::setupSocket() {
         throw std::runtime_error("listen failed");
 }
 
-Server::Server(const ServerConfig &config) : _config(config), _serverSocket(-1) {
+Server::Server(const ServerConfig &config) : _config(config), _serverSocket(-1), _serverName("ft_irc.server") {
     setupSocket();
     initializePoll();
     std::cout << "Server is running on port " << _config.getPort() << std::endl;

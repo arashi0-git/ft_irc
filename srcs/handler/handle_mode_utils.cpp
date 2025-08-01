@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include <cstdlib>
 
 void Server::handleModeOperator(int fd, Channel &channel, const std::string &mode, const std::string &target) {
     std::map<std::string, int>::iterator it = _nickToFd.find(target);

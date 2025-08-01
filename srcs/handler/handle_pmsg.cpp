@@ -22,11 +22,11 @@ void Server::handlePrivMsg(int fd, std::istringstream &iss) {
     }
 
     if (target[0] == '#') {
-        if (_channels.find(target) == _channels.end()) {
+        if (channels.find(target) == channels.end()) {
             sendError(fd, "401 " + target + " :No such channel");
             return;
         }
-        Channel &channel = _channels[target];
+        Channel &channel = channels[target];
         if (!channel.hasMember(fd)) {
             sendError(fd, "404 :Cannot send to channel");
             return;

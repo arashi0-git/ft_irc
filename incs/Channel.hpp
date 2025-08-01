@@ -18,6 +18,7 @@ class Channel {
         bool _hasLimit;
         size_t _userLimit;
     public:
+        Channel();
         Channel(const std::string &name);
         ~Channel();
 

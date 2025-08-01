@@ -16,12 +16,12 @@ void Server::handleKick(int fd, std::istringstream &iss) {
         return;
     }
 
-    if (_channels.find(channelName) == _channels.end()) {
+    if (channels.find(channelName) == channels.end()) {
         sendError(fd, "403 " + channelName + " :No such channel");
         return;
     }
 
-    Channel &channel = _channels[channelName];
+    Channel &channel = channels[channelName];
 
     if (!channel.hasMember(fd)) {
         sendError(fd, "442 " + channelName + " :You're not on that channel");
@@ -60,6 +60,6 @@ void Server::handleKick(int fd, std::istringstream &iss) {
     channel.removeMember(userFd);
     
     if (channel.getMembers().size() == 0) {
-        _channels.erase(channelName);
+        channels.erase(channelName);
     }
 }

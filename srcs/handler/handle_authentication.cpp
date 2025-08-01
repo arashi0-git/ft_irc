@@ -24,7 +24,7 @@ void Server::handlePass(int fd, std::istringstream &iss) {
         return;
     }
 
-    if (password != _password) {
+    if (password != _config.getPassword()) {
         sendError(fd, "464 :Password incorrect");
         return;
     }
@@ -81,7 +81,7 @@ void Server::handleNick(int fd, std::istringstream &iss) {
         return;
     }
 
-    std::string oldNick = _clinets[fd].getNickname();
+    std::string oldNick = _clients[fd].getNickname();
     if (!oldNick.empty())
         _nickToFd.erase(oldNick);
 

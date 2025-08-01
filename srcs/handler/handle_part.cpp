@@ -11,7 +11,7 @@ void Server::handlePart(int fd, std::istringstream &iss) {
     if (!comment.empty() && comment[0] == ':')
         comment = comment.substr(1);
 
-    if (_channels.find(channelName) == _channels.end()) {
+    if (channels.find(channelName) == channels.end()) {
         sendError(fd, "403 " + channelName + " :No such channel");
         return;
     }
@@ -21,7 +21,7 @@ void Server::handlePart(int fd, std::istringstream &iss) {
         return;
     }
 
-    Channel &channel = _channels[channelName];
+    Channel &channel = channels[channelName];
 
     if (!channel.hasMember(fd)) {
         sendError(fd, "442 " + channelName + " :You're not on that channel");
@@ -43,6 +43,6 @@ void Server::handlePart(int fd, std::istringstream &iss) {
     send(fd, msg.c_str(), msg.length(), 0);
 
     if (channel.getMembers().empty()) {
-        _channels.erase(channelName);
+        channels.erase(channelName);
     }
 }
