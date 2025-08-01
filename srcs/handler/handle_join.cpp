@@ -17,8 +17,8 @@ void Server::sendNamesReply(int fd, const Channel &channel) {
 }
 
 void Server::handleJoin(int fd, std::istringstream &iss) {
-    std::string channelName;
-    iss >> channelName;
+    std::string channelName, key;
+    iss >> channelName >> key;
     
     if (channelName.empty()) {
         sendError(fd, "461 :Not enough parameters");
@@ -39,6 +39,11 @@ void Server::handleJoin(int fd, std::istringstream &iss) {
 
     if (channel.isInviteOnly() && !channel.isInvited(fd)) {
         sendError(fd, "473 " + channelName + " :Cannot join channel (+i)");
+        return;
+    }
+
+    if (channel.hasKey() && channel.getKey() != key) {
+        sendError(fd, "475 " + channelName + " :Cannot join channel (+k)");
         return;
     }
 

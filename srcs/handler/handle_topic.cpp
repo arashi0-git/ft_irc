@@ -41,7 +41,7 @@ void Server::handleTopic(int fd, std::istringstream &iss) {
         }
     }
     else {
-        if (!channel.isOperator(fd)) {
+        if (channel.isTopic() && !channel.isOperator(fd)) {
             sendError(fd, "482 " + channelName + " :You're not channel operator");
             return;
         }

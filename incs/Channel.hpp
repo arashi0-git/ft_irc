@@ -13,6 +13,10 @@ class Channel {
         std::set<int> _invited;
         bool _inviteOnly;
         bool _topicSet;
+        bool _hasKey;
+        std::string _key;
+        bool _hasLimit;
+        size_t _userLimit;
     public:
         Channel(const std::string &name);
         ~Channel();
@@ -30,6 +34,8 @@ class Channel {
         bool hasOperator() const;
 
         void setTopic(const std::string &topic);
+        void setTopicFlag(bool flag);
+        bool isTopic() const;
         const std::string &getTopic() const;
 
         void invite(int fd);
@@ -38,6 +44,15 @@ class Channel {
         void setInviteOnly(bool flag);
         bool isInviteOnly() const;
 
+        void setKey(const std::string &key);
+        void removeKey();
+        bool hasKey() const;
+        const std::string &getKey() const;
+
+        void setLimit(size_t limit);
+        void removeLimit();
+        bool hasLimit() const;
+        size_t getLimit() const;
 };
 
 #endif

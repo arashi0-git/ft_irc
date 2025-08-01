@@ -15,6 +15,7 @@ class Client {
         bool _authenticated;
 
     public:
+        Client();
         Client(int fd);
         ~Client();
 

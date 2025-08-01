@@ -24,6 +24,7 @@ class Server {
         std::map<int, std::string> clientBuffer;
         std::map<std::string, Channel> channels;
         std::map<std::string, int> _nickToFd;
+        std::map<int, Client> _clients;
     
     public:
         Server(const ServerConfig &config);
@@ -47,6 +48,13 @@ class Server {
         void sendError(int fd, const std::string &message);
         void sendWelcome(int fd);
         bool canAuthenticate(const Client &client) const;
+        void handleModeOperator(int fd, Channel &channel, const std::string &mode, const std::string &target);
+        void handleModeInviteOnly(int fd, Channel &channel, const std::string &mode);
+        void handleModeTopic(int fd, Channel &channel, const std::string &mode);
+        void handleModeKey(int fd, Channel &channel, const std::string &mode, const std::string &key);
+        void handleModeLimit(int fd, Channel &channel, const std::string &mode, const std::string &limit);
+        bool isNumeric(const std::string &str) const;
+
 };
 
 #endif

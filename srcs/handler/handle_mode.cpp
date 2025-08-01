@@ -45,91 +45,25 @@ void Server::handleMode(int fd, std::istringstream &iss) {
         return;
     }
 
-    std::map<std::string, int>::iterator it = _nickToFd.find(target);
-    if (it == _nickToFd.end()) {
-        sendError(fd, "401 " + target + " :No such nick");
-        return;
-    }
-
-    int targetFd = it->second;
-    if (!channel.hasMember(targetFd)) {
-        sendError(fd, "441 " + target + " " + channelName + " :They aren't on that channel");
-        return;
-    }
-
-    if (mode.size() == 2 && mode == '+i') {
-        channel.setInviteOnly(true);
-
-        std::string msg = ":" + _clients[fd].getNickname() + " MODE " + channelName + " +i\r\n";
-        for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
-            send(*it, msg.c_str(), msg.length(), 0);
-        }
-    }
-    else if (mode.size() == 2 && mode == '-i') {
-        channel.setInviteOnly(false);
-        std::string msg = ":" + _clients[fd].getNickname() + " MODE " + channelName + " -i\r\n";
-        for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
-            send(*it, msg.c_str(), msg.length(), 0);
-        }
-    }
-    else if (mode.size() == 2 && mode == '+t')
-    {
-        channel.setTopicSet(true);
-
-        std::string msg = ":" + _clients[fd].getNickname() + " MODE " + channelName + " +t\r\n";
-        for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
-            send(*it, msg.c_str(), msg.length(), 0);
-        }
-    }
-    else if (mode.size() == 2 && mode == '-t')
-    {
-        channel.setTopicSet(false);
-
-        std::string msg = ":" + _clients[fd].getNickname() + " MODE " + channelName + " +t\r\n";
-        for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
-            send(*it, msg.c_str(), msg.length(), 0);
-        }
-    }
-    else if (mode.size() == 2 && mode == '+o') {
-        if (channel.isOperator(targetFd)) {
-            sendError(fd, "482 " + channelName + " :Target is already an operator");
-            return;
-        }
-        channel.addOperator(targetFd);
-        std::string msg = ":" + _clients[fd].getNickname() + " MODE " + channelName + " " + mode + " " + target + "\r\n";
-        for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
-            send(*it, msg.c_str(), msg.length(), 0);
-        }
-    }
-    else if (mode.size() == 2 && mode == '-o') {
-        if (!channel.isOperator(targetFd)) {
-            sendError(fd, "482 " + channelName + " :Target is not an operator");
-            return;
-        }
-        channel.removeOperator(targetFd);
-        std::string msg = ":" + _clients[fd].getNickname() + " MODE " + channelName + " " + mode + " " + target + "\r\n";
-        for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
-            send(*it, msg.c_str(), msg.length(), 0);
-        }
-    }
-    else if (mode.size() == 2 && mode == '+k')
-    {
-        /* code */
-    }
-    else if (mode.size() == 2 && mode == '-k')
-    {
-        /* code */
-    }
-    else if (mode.size() == 2 && mode == '+l')
-    {
-        /* code */
-    }
-    else if (mode.size() == 2 && mode == '-l')
-    {
-        /* code */
-    }
-    else {
-        sendError(fd, "472 " + (mode.size() > 1 ? std::string(1, mode[1]) : mode) + " :is unknown mode char to me");
-        return;
+    char modechar = mode[1];
+    switch (modechar) {
+        case 'o':
+            handleModeOperator(fd, channel, mode, target);
+            break;
+        case 'i':
+            handleModeInviteOnly(fd, channel, mode);
+            break;
+        case 't':
+            handleModeTopic(fd, channel, mode);
+            break;
+        case 'k':
+            handleModeKey(fd, channel, mode, target);
+            break;
+        case 'l':
+            handleModeLimit(fd, channel, mode, target);
+            break;
+        default:
+            sendError(fd, "472 " + std::string(1, modeChar) + " :is unknown mode char to me");
+            break;
     }
 }

@@ -113,3 +113,11 @@ Server::Server(const ServerConfig &config) : _config(config), _serverSocket(-1) 
     initializePoll();
     std::cout << "Server is running on port " << _config.getPort() << std::endl;
 }
+
+bool Server::isNumeric(const std::string &str) const {
+    if (str.empty()) return false;
+    for (size_t i = 0; i < str.length(); ++i) {
+        if (!std::isdigit(str[i])) return false;
+    }
+    return true;
+}
