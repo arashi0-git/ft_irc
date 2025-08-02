@@ -4,7 +4,7 @@ echo "=== メモリ枯渇攻撃テスト ==="
 
 # valgrindでサーバー起動
 echo "1. valgrindでサーバー起動中..."
-valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --log-file=memory_exhaustion.log ./ircserv 8088 memtest &
+valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes --log-file=memory_exhaustion.log ./ircserv 8088 memtest &
 VALGRIND_PID=$!
 
 sleep 3
