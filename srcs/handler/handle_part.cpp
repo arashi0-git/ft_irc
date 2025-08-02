@@ -37,7 +37,8 @@ void Server::handlePart(int fd, std::istringstream &iss) {
     if (!comment.empty())
         msg += " :" + comment;
     msg += "\r\n";
-    for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
+    for (std::set<int>::iterator it = channel.getMembers().begin();
+         it != channel.getMembers().end(); ++it) {
         send(*it, msg.c_str(), msg.length(), 0);
     }
     send(fd, msg.c_str(), msg.length(), 0);

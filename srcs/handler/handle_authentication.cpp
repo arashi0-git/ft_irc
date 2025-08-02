@@ -1,19 +1,21 @@
 #include "Server.hpp"
 
 bool Server::canAuthenticate(const Client &client) const {
-    return client.hasPasswordReceived() && !client.getNickname().empty() && !client.getUsername().empty() && !client.getRealname().empty();
+    return client.hasPasswordReceived() && !client.getNickname().empty() &&
+           !client.getUsername().empty() && !client.getRealname().empty();
 }
 
 void Server::sendWelcome(int fd) {
     const Client &client = _clients[fd];
-    std::string msg = ":irc.local 001 " + client.getNickname() + " : Welcome to the IRC server " + client.getNickname() + "\r\n";
+    std::string msg = ":irc.local 001 " + client.getNickname() + " : Welcome to the IRC server " +
+                      client.getNickname() + "\r\n";
     send(fd, msg.c_str(), msg.length(), 0);
 }
 
 void Server::handlePass(int fd, std::istringstream &iss) {
     std::string password;
     iss >> password;
-    
+
     if (password.empty()) {
         sendError(fd, "461 :Not enough parameters");
         return;

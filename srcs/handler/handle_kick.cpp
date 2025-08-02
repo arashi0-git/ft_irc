@@ -52,13 +52,15 @@ void Server::handleKick(int fd, std::istringstream &iss) {
 
     if (reason.empty())
         reason = "Kicked by " + _clients[fd].getNickname();
-    for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
-        std::string msg = ":" + _clients[fd].getNickname() + " KICK " + channelName + " " + user + " :" + reason +"\r\n";
+    for (std::set<int>::iterator it = channel.getMembers().begin();
+         it != channel.getMembers().end(); ++it) {
+        std::string msg = ":" + _clients[fd].getNickname() + " KICK " + channelName + " " + user +
+                          " :" + reason + "\r\n";
         send(*it, msg.c_str(), msg.length(), 0);
     }
 
     channel.removeMember(userFd);
-    
+
     if (channel.getMembers().size() == 0) {
         channels.erase(channelName);
     }

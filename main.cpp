@@ -2,11 +2,11 @@
 #include "ServerConfig.hpp"
 
 int main(int ac, char **av) {
-    try{
+    try {
         ServerConfig config(ac, av);
         Server server(config);
         server.run();
-    }catch (const std::exception &e) {
+    } catch (const std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }

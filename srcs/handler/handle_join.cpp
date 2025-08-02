@@ -2,7 +2,8 @@
 
 void Server::sendNamesReply(int fd, const Channel &channel) {
     std::string reply = "353 " + _clients[fd].getNickname() + " = " + channel.getName() + " :";
-    for (std::set<int>::const_iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
+    for (std::set<int>::const_iterator it = channel.getMembers().begin();
+         it != channel.getMembers().end(); ++it) {
         std::string nick = _clients[*it].getNickname();
         if (channel.isOperator(*it))
             reply += "@" + nick + " ";
@@ -12,14 +13,15 @@ void Server::sendNamesReply(int fd, const Channel &channel) {
     reply += "\r\n";
     send(fd, reply.c_str(), reply.length(), 0);
 
-    std::string endreply = "366 " + _clients[fd].getNickname() + " " + channel.getName() + " :End of /NAMES list\r\n";
+    std::string endreply =
+        "366 " + _clients[fd].getNickname() + " " + channel.getName() + " :End of /NAMES list\r\n";
     send(fd, endreply.c_str(), endreply.length(), 0);
 }
 
 void Server::handleJoin(int fd, std::istringstream &iss) {
     std::string channelName, key;
     iss >> channelName >> key;
-    
+
     if (channelName.empty()) {
         sendError(fd, "461 :Not enough parameters");
         return;
@@ -60,12 +62,12 @@ void Server::handleJoin(int fd, std::istringstream &iss) {
     std::string reply = ":" + nick + " JOIN " + channelName + "\r\n";
     send(fd, reply.c_str(), reply.length(), 0);
 
-    if (channel.getTopic().empty()){
+    if (channel.getTopic().empty()) {
         std::string reply331 = "331 " + nick + " " + channelName + " :No topic is set\r\n";
         send(fd, reply331.c_str(), reply331.length(), 0);
-    }
-    else {
-        std::string reply332 = "332 " + nick + " " + channelName + " :" + channel.getTopic() + "\r\n";
+    } else {
+        std::string reply332 =
+            "332 " + nick + " " + channelName + " :" + channel.getTopic() + "\r\n";
         send(fd, reply332.c_str(), reply332.length(), 0);
     }
     sendNamesReply(fd, channel);

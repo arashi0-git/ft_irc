@@ -1,0 +1,7 @@
+.clang-format
+package-lock.json
+package.json
+*.log
+.serena
+subject.txt
+node_modules

@@ -10,10 +10,10 @@ void Server::handlePrivMsg(int fd, std::istringstream &iss) {
 
     if (!message.empty() && message[0] == ' ')
         message = message.substr(1);
-    
+
     if (!message.empty() && message[0] == ':')
         message = message.substr(1);
-    
+
     if (target.empty()) {
         sendError(fd, "411 :No recipient given");
         return;
@@ -36,14 +36,14 @@ void Server::handlePrivMsg(int fd, std::istringstream &iss) {
         }
         std::string sender = _clients[fd].getNickname();
         std::string prefix = ":" + sender + " PRIVMSG " + target + " :" + message + "\r\n";
-        
-        for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.getMembers().end(); ++it) {
+
+        for (std::set<int>::iterator it = channel.getMembers().begin();
+             it != channel.getMembers().end(); ++it) {
             if (*it != fd) {
                 send(*it, prefix.c_str(), prefix.length(), 0);
             }
         }
-    }
-    else {
+    } else {
         int targetFd = -1;
         for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
             if (it->second.getNickname() == target) {

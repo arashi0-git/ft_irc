@@ -22,7 +22,6 @@ void Server::handleMode(int fd, std::istringstream &iss) {
         return;
     }
 
-
     if (channelName[0] != '#') {
         sendError(fd, "476 " + channelName + " :Invalid channel name");
         return;
@@ -35,7 +34,7 @@ void Server::handleMode(int fd, std::istringstream &iss) {
 
     Channel &channel = channels[channelName];
 
-    if (!channel.hasMember(fd)){
+    if (!channel.hasMember(fd)) {
         sendError(fd, "442 " + channelName + " :You're not on that channel");
         return;
     }
@@ -47,23 +46,23 @@ void Server::handleMode(int fd, std::istringstream &iss) {
 
     char modechar = mode[1];
     switch (modechar) {
-        case 'o':
-            handleModeOperator(fd, channel, mode, target);
-            break;
-        case 'i':
-            handleModeInviteOnly(fd, channel, mode);
-            break;
-        case 't':
-            handleModeTopic(fd, channel, mode);
-            break;
-        case 'k':
-            handleModeKey(fd, channel, mode, target);
-            break;
-        case 'l':
-            handleModeLimit(fd, channel, mode, target);
-            break;
-        default:
-            sendError(fd, "472 " + std::string(1, modechar) + " :is unknown mode char to me");
-            break;
+    case 'o':
+        handleModeOperator(fd, channel, mode, target);
+        break;
+    case 'i':
+        handleModeInviteOnly(fd, channel, mode);
+        break;
+    case 't':
+        handleModeTopic(fd, channel, mode);
+        break;
+    case 'k':
+        handleModeKey(fd, channel, mode, target);
+        break;
+    case 'l':
+        handleModeLimit(fd, channel, mode, target);
+        break;
+    default:
+        sendError(fd, "472 " + std::string(1, modechar) + " :is unknown mode char to me");
+        break;
     }
 }

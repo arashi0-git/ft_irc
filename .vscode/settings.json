@@ -1,4 +1,19 @@
+// ~/aaa/cpp_hub/.vscode/settings.json
 {
+    // すべてのファイルで「保存時に整形」を有効化
+    "editor.formatOnSave": true,
+    // C++ ファイルは ms-vscode.cpptools（C/C++ 拡張）の clang-format を使う
+    "[cpp]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools"
+    },
+    "[c]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools"
+    },
+    // C/C++ 拡張が呼び出す clang-format のパスを、ローカルのものへ差し替え
+    "C_Cpp.clang_format_path": "${workspaceFolder}/node_modules/.bin/clang-format",
+    // スタイルはファイル（.clang-format）に従う
+    "C_Cpp.clang_format_style": "file",
+    "files.saveConflictResolution": "overwriteFileOnDisk",
     "files.associations": {
         "iostream": "cpp",
         "array": "cpp",
@@ -14,6 +29,7 @@
         "cstdint": "cpp",
         "cstdio": "cpp",
         "cstdlib": "cpp",
+        "ctime": "cpp",
         "cwchar": "cpp",
         "cwctype": "cpp",
         "deque": "cpp",
@@ -35,6 +51,7 @@
         "type_traits": "cpp",
         "utility": "cpp",
         "initializer_list": "cpp",
+        "iomanip": "cpp",
         "iosfwd": "cpp",
         "istream": "cpp",
         "limits": "cpp",
@@ -47,10 +64,26 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp",
+        "__locale": "cpp",
+        "__verbose_abort": "cpp",
+        "bitset": "cpp",
         "cstring": "cpp",
-        "map": "cpp",
-        "set": "cpp",
-        "cinttypes": "cpp"
-    },
-    "C_Cpp.errorSquiggles": "disabled"
+        "fstream": "cpp",
+        "ios": "cpp",
+        "locale": "cpp",
+        "mutex": "cpp",
+        "print": "cpp",
+        "__bit_reference": "cpp",
+        "__hash_table": "cpp",
+        "__node_handle": "cpp",
+        "__split_buffer": "cpp",
+        "complex": "cpp",
+        "execution": "cpp",
+        "queue": "cpp",
+        "ratio": "cpp",
+        "stack": "cpp",
+        "variant": "cpp",
+        "*.tpp": "cpp",
+        "list": "cpp"
+    }
 }

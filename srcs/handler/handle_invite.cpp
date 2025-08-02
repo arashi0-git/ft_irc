@@ -40,11 +40,12 @@ void Server::handleInvite(int fd, std::istringstream &iss) {
     }
 
     if (channel.hasMember(it->second)) {
-        sendError(fd, "443 " + nickName + " " +channelName + " :is already on channel");
+        sendError(fd, "443 " + nickName + " " + channelName + " :is already on channel");
         return;
     }
 
     channel.invite(it->second);
-    std::string msg = ":" + _clients[fd].getNickname() + " INVITE " + nickName + " :" + channelName + "\r\n";
+    std::string msg =
+        ":" + _clients[fd].getNickname() + " INVITE " + nickName + " :" + channelName + "\r\n";
     send(it->second, msg.c_str(), msg.length(), 0);
 }
