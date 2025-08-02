@@ -8,6 +8,9 @@ void Server::handlePrivMsg(int fd, std::istringstream &iss) {
     iss >> target;
     std::getline(iss, message);
 
+    if (!message.empty() && message[0] == ' ')
+        message = message.substr(1);
+    
     if (!message.empty() && message[0] == ':')
         message = message.substr(1);
     

@@ -1,0 +1,7 @@
+:irc.local 001 user1 : Welcome to the IRC server user1
+:user1 JOIN #multiclient
+331 user1 #multiclient :No topic is set
+353 user1 = #multiclient :@user1 
+366 user1 #multiclient :End of /NAMES list
+:ft_irc.server Unknown command
+:user2 PRIVMSG #multiclient :User2 here

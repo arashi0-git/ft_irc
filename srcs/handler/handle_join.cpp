@@ -30,6 +30,9 @@ void Server::handleJoin(int fd, std::istringstream &iss) {
         return;
     }
 
+    if (channels.find(channelName) == channels.end()) {
+        channels[channelName] = Channel(channelName);
+    }
     Channel &channel = channels[channelName];
 
     if (channel.hasMember(fd)) {
