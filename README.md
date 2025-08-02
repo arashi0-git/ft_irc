@@ -120,7 +120,7 @@ int socket(int domain, int type, int protocol);
 
 **パラメータ:**
 - **domain**: アドレスドメイン（**AF_INET (v4)**、**AF_INET6 (v6)**、**AF_UNIX**、**AF_RAW**）
-- **type**: ソケットタイプ（**SOCK_STREAM (TCP)**、**SOCK_DGRAM (UDP)**、**SOCK_RAW**）  
+- **type**: ソケットタイプ（**SOCK_STREAM**、**SOCK_DGRAM**、**SOCK_RAW**）  
   - **SOCK_STREAM** … 送った順序どおり、欠落なく届く TCP 向け。  
   - **SOCK_DGRAM** … 小さなパケットを投げっぱなし、到達保証なしの UDP 向け。  
   - **SOCK_RAW** … 自作プロトコルや ICMP/TCP ヘッダ解析・生成を行いたいときに使う上級者向け。
