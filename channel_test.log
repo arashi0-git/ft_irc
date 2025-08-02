@@ -1,8 +1,0 @@
-:irc.local 001 channeluser : Welcome to the IRC server channeluser
-:channeluser JOIN #testchannel
-331 channeluser #testchannel :No topic is set
-353 channeluser = #testchannel :@channeluser 
-366 channeluser #testchannel :End of /NAMES list
-:channeluser PART #testchannel
-:ft_irc.server Unknown command
-:ft_irc.server Unknown command

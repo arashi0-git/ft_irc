@@ -1,6 +1,0 @@
-:irc.local 001 user2 : Welcome to the IRC server user2
-:user2 JOIN #multiclient
-331 user2 #multiclient :No topic is set
-353 user2 = #multiclient :@user1 user2 
-366 user2 #multiclient :End of /NAMES list
-:ft_irc.server Unknown command
