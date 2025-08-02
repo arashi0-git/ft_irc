@@ -119,7 +119,7 @@ int socket(int domain, int type, int protocol);
 ```
 
 **パラメータ:**
-- **domain**: アドレスドメイン（AF_INET, AF_INET6, AF_UNIX, AF_RAW）
+- **domain**: アドレスドメイン（**AF_INET(v4)**, AF_INET6(v6), AF_UNIX, AF_RAW）
 - **type**: ソケットタイプ（SOCK_STREAM, SOCK_DGRAM, SOCK_RAW）
 - **protocol**: プロトコル（0, IPPROTO_UDP, IPPROTO_TCP）
 
