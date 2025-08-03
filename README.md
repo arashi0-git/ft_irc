@@ -1,4 +1,4 @@
-<img width="1447" height="2142" alt="image" src="https://github.com/user-attachments/assets/4590d52c-507c-424f-bb4d-1418d155aa64" /># ft_irc - IRC Server Implementation
+# ft_irc - IRC Server Implementation
 
 C++98標準で実装されたIRCサーバーです。複数クライアントの同時接続、チャンネル管理、オペレーター機能をサポートしています。
 
