@@ -114,6 +114,10 @@ PRIVMSG #testchannel :Hello World!
 - 双方向のやり取りが必要
 - → **TCPが適している**
 
+- ### TCP通信の特徴（ストリーム型）  
+- サーバーは「どこまでが一つのメッセージか」を自分で判断する必要
+- `\r\n`または`\n`で終わるのが一般的
+
 ##### 使用したExternal Functions一覧  
 ・socket ・setsockopt ・htons ・bind   
 ・fcntl ・listen ・accept ・send ・recv   
@@ -399,10 +403,7 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout);
 戻ってくるのは必ず何かしらのイベントが起きたあと。
 
 
-### TCP通信の特徴（ストリーム型）
 
-- サーバーは「どこまでが一つのメッセージか」を自分で判断する必要
-- `\r\n`または`\n`で終わるのが一般的
 
 ## 💡 実装パターン集
 
