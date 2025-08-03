@@ -205,7 +205,7 @@ setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 - SO_REUSEADDR を立てると「TIME_WAIT」状態でも即座にバインド可能にする
 
 
-### htons() -  “Host To Network Short”  ポートの値を変換  
+## htons() -  “Host To Network Short”  ポートの値を変換  
 16 ビット（short）の整数値を ホストバイトオーダー（実行環境依存：リトルエンディアンやビッグエンディアン）から ネットワークバイトオーダー（常にビッグエンディアン）に変換する関数
 - リトルエンディアン（Little Endian）  
 定義：数値の「最下位バイト」（least significant byte）を 先頭アドレス に置き、以降上位バイトを順に後ろに置く方式。
