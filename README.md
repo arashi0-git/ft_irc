@@ -115,9 +115,9 @@ PRIVMSG #testchannel :Hello World!
 - → **TCPが適している**
 
 ##### 使用したExternal Functions一覧  
-・socket ・setsockopt ・close ・bind   
-・listen ・accept ・htons ・send ・recv   
-・fcntl ・poll <br>  
+・socket ・setsockopt ・htons ・bind   
+・fcntl ・listen ・accept ・send ・recv   
+・poll ・close  
 
 # サーバーのソケットを立ち上げる関数　setupSocket() の実装例 (Server.cpp)
 
@@ -217,7 +217,12 @@ TCP/IP プロトコルでは、ヘッダー内のポート番号やアドレス�
 一方、PC やサーバーの CPU では リトルエンディアン（下位バイトを先）を使うものも多く、直接 bind() に渡すと byte 順序が合わず、正しいポート番号で待ち受けできなくなる恐れがあります。htons を使うことで、たとえ実行環境がリトルエンディアンでも、必ず「ネットワークに出す前に」正しいバイト順にそろえられます。
 
 
+
+
+
 ### bind() - アドレス割り当て
+作成したソケットにIPアドレスとポート番号を割り当てる関数。
+主にサーバー側で利用され、クライアントからの接続を受け付ける場所（ポート）を指定します。  
 
 bind()の引数
 ```cpp
@@ -226,8 +231,18 @@ int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 - `sockfd`: `socket()`で作成したソケットのfd
 - `addr`: `sockaddr_in`のポインタ（バインド先の情報）
 - `addrlen`: `addr`構造体のサイズ（sizeof(addr)）
-  
-ソケットにIPアドレスとポート番号を割り当てる関数です。クライアントからの接続を受け付ける場所（ポート）を指定します。
+
+##### struct sockaddr_inとは
+ソケット通信機能を提供するシステム（OS）によって定義されている、IPv4（現在最も広く使われているインターネットプロトコル）のアドレス情報を格納するための専用の構造体。具体的には、以下の重要な情報を保持しています。
+
+- どのIPアドレスか？ (sin_addr)  
+addr.sin_addr.s_addr = INADDR_ANY: このコンピュータで利用可能な、全てのIPアドレスで待ち受けますという設定
+
+- どのポート番号か？ (sin_port)  
+sin_port = htons(_config.getPort());
+
+- アドレスの種類は何か？ (この場合はIPv4であることを示す sin_family)  
+  sin_family = AF_INET: 「通信の種類は、一般的なインターネット（IPv4）を使います」という設定
 
 ```cpp
 // std::bind を使った関数ラッピングの例
