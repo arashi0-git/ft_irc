@@ -127,75 +127,7 @@ int socket(int domain, int type, int protocol);
 - **protocol**: プロトコル（**0（デフォルト）**、**IPPROTO_UDP**、**IPPROTO_TCP**）
 
 
-### bind() - アドレス割り当て
-
-bind()の引数
-```cpp
-int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
-```
-- `sockfd`: `socket()`で作成したソケットのfd
-- `addr`: `sockaddr_in`のポインタ（バインド先の情報）
-- `addrlen`: `addr`構造体のサイズ（sizeof(addr)）
-  
-ソケットにIPアドレスとポート番号を割り当てる関数です。クライアントからの接続を受け付ける場所（ポート）を指定します。
-
-```cpp
-// std::bind を使った関数ラッピングの例
-#include <iostream>
-
-void test_function(int a, int b) {
-    printf("a=%d, b=%d\n", a, b);
-}
-
-int main(int argc, const char * argv[]) {
-    auto func1 = std::bind(test_function, std::placeholders::_1, std::placeholders::_2);
-    func1(1, 2);
-    // -> a=1, b=2
-
-    auto func2 = std::bind(test_function, std::placeholders::_1, 9);
-    func2(1);
-    // -> a=1, b=9
-
-    return 0;
-}
-```
-
-### listen() - 待ち受け状態設定
-ソケットを"待ち受け状態"に設定するために使用します。
-
-### accept() - 接続要求受け入れ
-クライアントからの接続要求を受け入れるために使用します。
-
-### setupSocket() の実装例
-
-```cpp
-void Server::setupSocket() {
-    _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (_serverSocket < 0)
-        throw std::runtime_error("Failed to create socket");
-    
-    int opt = 1;
-    if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-        throw std::runtime_error("setsockopt failed");
-
-    struct sockaddr_in addr;
-    std::memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(_config.getPort());
-
-    if (bind(_serverSocket, (struct sockaddr*)&addr, sizeof(addr)) < 0)
-        throw std::runtime_error("bind failed");
-
-    if (fcntl(_serverSocket, F_SETFL, O_NONBLOCK) < 0)
-        throw std::runtime_error("fcntl failed");
-
-    if (listen(_serverSocket, SOMAXCONN) < 0)
-        throw std::runtime_error("listen failed");
-}
-```
-
-### setupSocket()の処理内容
+### setupSocket()
 
 setsockopt() は、ソケットの動作を細かく制御するための関数で、作成したソケットに対して各種オプションを設定できます。
 「このソケットはOS上で指定ポートを使いTCPサーバーとして接続待ちをする」などの設定が可能です。
@@ -242,7 +174,71 @@ setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 - 双方向のやり取りが必要
 - → **TCPが適している**
 
+setupSocket() の実装例
 
+```cpp
+void Server::setupSocket() {
+    _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (_serverSocket < 0)
+        throw std::runtime_error("Failed to create socket");
+    
+    int opt = 1;
+    if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+        throw std::runtime_error("setsockopt failed");
+
+    struct sockaddr_in addr;
+    std::memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_port = htons(_config.getPort());
+
+    if (bind(_serverSocket, (struct sockaddr*)&addr, sizeof(addr)) < 0)
+        throw std::runtime_error("bind failed");
+
+    if (fcntl(_serverSocket, F_SETFL, O_NONBLOCK) < 0)
+        throw std::runtime_error("fcntl failed");
+
+    if (listen(_serverSocket, SOMAXCONN) < 0)
+        throw std::runtime_error("listen failed");
+}
+```
+
+
+### bind() - アドレス割り当て
+
+bind()の引数
+```cpp
+int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+```
+- `sockfd`: `socket()`で作成したソケットのfd
+- `addr`: `sockaddr_in`のポインタ（バインド先の情報）
+- `addrlen`: `addr`構造体のサイズ（sizeof(addr)）
+  
+ソケットにIPアドレスとポート番号を割り当てる関数です。クライアントからの接続を受け付ける場所（ポート）を指定します。
+
+```cpp
+// std::bind を使った関数ラッピングの例
+#include <iostream>
+
+void test_function(int a, int b) {
+    printf("a=%d, b=%d\n", a, b);
+}
+
+int main(int argc, const char * argv[]) {
+    auto func1 = std::bind(test_function, std::placeholders::_1, std::placeholders::_2);
+    func1(1, 2);
+    // -> a=1, b=2
+
+    auto func2 = std::bind(test_function, std::placeholders::_1, 9);
+    func2(1);
+    // -> a=1, b=9
+
+    return 0;
+}
+```
+
+### accept() - 接続要求受け入れ
+クライアントからの接続要求を受け入れるために使用します。
 
 ### fcntl() - ノンブロッキングモード設定
 
@@ -255,7 +251,7 @@ fcntl(fd, F_SETFL, O_NONBLOCK);
 - サーバーが複数クライアントを同時処理するため、全体を常に監視できる必要がある
 
 ### listen() - 接続待ち受け設定
-
+ソケットを"待ち受け状態"に設定するために使用します。
 「このソケットでクライアントからの接続を待ち受ける」ことをOSに伝える関数
 
 ```cpp
