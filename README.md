@@ -104,9 +104,9 @@ PRIVMSG #testchannel :Hello World!
 ## 🧠 技術的な学習内容
 
 使用したExternal Functions一覧
-・socket ・setsockopt ・close ・bind 
-・listen ・accept ・htons ・send ・recv
-・fcntl ・poll
+・socket ・setsockopt ・close ・bind <br>
+・listen ・accept ・htons ・send ・recv <br>
+・fcntl ・poll <br>
 
 
 ### socket() - ソケット作成
