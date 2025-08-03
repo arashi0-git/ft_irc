@@ -84,6 +84,9 @@
         "stack": "cpp",
         "variant": "cpp",
         "*.tpp": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "map": "cpp",
+        "set": "cpp",
+        "cinttypes": "cpp"
     }
 }

@@ -25,8 +25,14 @@ make fclean     # 実行ファイルも含めて削除
 ```
 
 **パラメータ:**
-- `port`: サーバーが待機するポート番号（1-65535）
+- `port`: サーバーが待機するポート番号（1-65535）  
 - `password`: クライアント接続時に必要なパスワード
+
+  **ポートの範囲**  
+TCP/UDP の「ポート番号」は、プロトコルのヘッダ内で 16 ビット整数（unsigned short）として定義されているからです。  
+16 ビットなので取り得る値は 0～65 535 の 65 536 通り 0 は「任意の空きポートを OS に選ばせる」用途など、特別な意味で予約されているため、実際にサービス待ち受けに使うのは 1～65 535  
+さらに 1～1 023 は「ウェルノウンポート（Privileged Ports）」と呼ばれ、通常は root 権限がないと bind できない範囲  
+一般的なサーバーは 1 024～65 535 の範囲でポートを選びます
 
 **例:**
 ```bash
@@ -103,61 +109,27 @@ PRIVMSG #testchannel :Hello World!
 
 ## 🧠 技術的な学習内容
 
-使用したExternal Functions一覧
-・socket ・setsockopt ・close ・bind 
-・listen ・accept ・htons ・send ・recv
-・fcntl ・poll
+##### 用語
+- **TCPソケット**: TCPプロトコル（信頼性のある通信）を使用
+- **TCP**: Transmission Control Protocol（伝送制御プロトコル）- インターネット上で信頼性の高いデータ通信を確立するプロトコル（[参考](https://wa3.i-3-i.info/word19.html)）
+- **ソケット**: プログラムがネットワーク通信をするときに使う、専用の窓口（エンドポイント）
 
+#####  IRCサーバーでTCPソケットを使う理由  
+- 文字が順番通りに届く
+- 途中で欠けたり、重複しない
+- 双方向のやり取りが必要
+- → **TCPが適している**
 
-### socket() - ソケット作成
-通信のエンドポイントを作成し、ソケットファイルディスクリプタを返します。
-この呼び出しで、「このサーバーは TCP/IP で通信を行うぞ！」 という「空の」ソケットがカーネル内に生成され、ファイルディスクリプタ（例：3, 4…）として返ってきます。
+- ### TCP通信の特徴（ストリーム型）  
+- サーバーは「どこまでが一つのメッセージか」を自分で判断する必要
+- `\r\n`または`\n`で終わるのが一般的
 
+##### 使用したExternal Functions一覧  
+・socket ・setsockopt ・htons ・bind   
+・fcntl ・listen ・accept ・send ・recv   
+・poll ・close  
 
-```cpp
-int socket(int domain, int type, int protocol);
-```
-
-**パラメータ:**
-- **domain**: アドレスドメイン（**AF_INET (v4)**、**AF_INET6 (v6)**、**AF_UNIX**、**AF_RAW**）
-- **type**: ソケットタイプ（**SOCK_STREAM**、**SOCK_DGRAM**、**SOCK_RAW**）  
-  - **SOCK_STREAM** … 送った順序どおり、欠落なく届く TCP 向け。  
-  - **SOCK_DGRAM** … 小さなパケットを投げっぱなし、到達保証なしの UDP 向け。  
-  - **SOCK_RAW** … 自作プロトコルや ICMP/TCP ヘッダ解析・生成を行いたいときに使う上級者向け。
-- **protocol**: プロトコル（**0（デフォルト）**、**IPPROTO_UDP**、**IPPROTO_TCP**）
-
-
-### bind() - アドレス割り当て
-ソケットにIPアドレスとポート番号を割り当てる関数です。クライアントからの接続を受け付ける場所（ポート）を指定します。
-
-```cpp
-// std::bind を使った関数ラッピングの例
-#include <iostream>
-
-void test_function(int a, int b) {
-    printf("a=%d, b=%d\n", a, b);
-}
-
-int main(int argc, const char * argv[]) {
-    auto func1 = std::bind(test_function, std::placeholders::_1, std::placeholders::_2);
-    func1(1, 2);
-    // -> a=1, b=2
-
-    auto func2 = std::bind(test_function, std::placeholders::_1, 9);
-    func2(1);
-    // -> a=1, b=9
-
-    return 0;
-}
-```
-
-### listen() - 待ち受け状態設定
-ソケットを"待ち受け状態"に設定するために使用します。
-
-### accept() - 接続要求受け入れ
-クライアントからの接続要求を受け入れるために使用します。
-
-### setupSocket() の実装例
+# サーバーのソケットを立ち上げる関数　setupSocket() の実装例 (Server.cpp)
 
 ```cpp
 void Server::setupSocket() {
@@ -186,23 +158,41 @@ void Server::setupSocket() {
 }
 ```
 
-### setupSocket()の処理内容
+<br>
+
+## socket() - 新しいTCPソケットを作成
+通信のエンドポイントを作成し、ソケットファイルディスクリプタを返します。  
+この呼び出しで、「このサーバーは TCP/IP で通信を行うぞ！」 という「空の」ソケットがカーネル内に生成され、ファイルディスクリプタ（例：3, 4…）として返ってきます。
+
+
+```cpp
+int socket(int domain, int type, int protocol);
+```
+
+**パラメータ:**
+- **domain**: アドレスドメイン（**AF_INET (v4)**、**AF_INET6 (v6)**、**AF_UNIX**、**AF_RAW**）
+- **type**: ソケットタイプ（**SOCK_STREAM**、**SOCK_DGRAM**、**SOCK_RAW**）  
+  - **SOCK_STREAM** … 送った順序どおり、欠落なく届く TCP 向け。  
+  - **SOCK_DGRAM** … 小さなパケットを投げっぱなし、到達保証なしの UDP 向け。  
+  - **SOCK_RAW** … 自作プロトコルや ICMP/TCP ヘッダ解析・生成を行いたいときに使う上級者向け。
+- **protocol**: プロトコル（**0（デフォルト）**、**IPPROTO_UDP**、**IPPROTO_TCP**）
+
+##　使用例（Server.cpp)
+```cpp
+int socket(int domain, int type, int protocol);
+```
+- `AF_INET`: IPv4用
+- `SOCK_STREAM`: TCPプロトコル  
+`socket(AF_INET, SOCK_STREAM, 0)` → IPv4+TCPで通信するソケットを作成
+
+
+
+<br>
+
+## setupSocket() - ソケットオプション設定（再バインド許可）
 
 setsockopt() は、ソケットの動作を細かく制御するための関数で、作成したソケットに対して各種オプションを設定できます。
 「このソケットはOS上で指定ポートを使いTCPサーバーとして接続待ちをする」などの設定が可能です。
-
-#### 1. socket()関数で新しいTCPソケットを作成
-
-- **TCPソケット**: TCPプロトコル（信頼性のある通信）を使用
-- **TCP**: Transmission Control Protocol（伝送制御プロトコル）- インターネット上で信頼性の高いデータ通信を確立するプロトコル（[参考](https://wa3.i-3-i.info/word19.html)）
-- **ソケット**: ネットワーク通信を行うための出入口（エンドポイント）
-
-- `AF_INET`: IPv4用
-- `SOCK_STREAM`: TCPプロトコル
-
-`socket(AF_INET, SOCK_STREAM, 0)` → IPv4+TCPで通信するソケットを作成
-
-#### 2. setsockopt()でソケットオプション設定（再バインド許可）
 
 ```cpp
 int opt = 1;
@@ -226,35 +216,90 @@ setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
   ```
 - SO_REUSEADDR を立てると「TIME_WAIT」状態でも即座にバインド可能にする
 
-#### 3. IRCサーバーでTCPソケットを使う理由
+<br>
 
-- 文字が順番通りに届く
-- 途中で欠けたり、重複しない
-- 双方向のやり取りが必要
-- → **TCPが適している**
+## htons() -  “Host To Network Short”  ポートの値を変換  
+16 ビット（short）の整数値を ホストバイトオーダー（実行環境依存：リトルエンディアンやビッグエンディアン）から ネットワークバイトオーダー（常にビッグエンディアン）に変換する関数
+- リトルエンディアン（Little Endian）  
+定義：数値の「最下位バイト」（least significant byte）を 先頭アドレス に置き、以降上位バイトを順に後ろに置く方式。
+- ビッグエンディアン（Big Endian）  
+定義：数値の「最上位バイト」（most significant byte）を 先頭アドレス に置き、以降下位バイトを順に後ろに置く方式。
 
-### bind()の引数
+##### なぜ必要か？  
+TCP/IP プロトコルでは、ヘッダー内のポート番号やアドレスなどを ビッグエンディアン（上位バイトを先）で送受信することが規定されています。  
+一方、PC やサーバーの CPU では リトルエンディアン（下位バイトを先）を使うものも多く、直接 bind() に渡すと byte 順序が合わず、正しいポート番号で待ち受けできなくなる恐れがあります。htons を使うことで、たとえ実行環境がリトルエンディアンでも、必ず「ネットワークに出す前に」正しいバイト順にそろえられます。
 
+
+
+
+<br>
+
+## bind() - アドレス割り当て （あだ名：ピコ太郎）
+作成したソケットにIPアドレスとポート番号を割り当てる関数。
+主にサーバー側で利用され、クライアントからの接続を受け付ける場所（ポート）を指定します。  
+
+bind()の引数
 ```cpp
 int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 ```
-
 - `sockfd`: `socket()`で作成したソケットのfd
 - `addr`: `sockaddr_in`のポインタ（バインド先の情報）
 - `addrlen`: `addr`構造体のサイズ（sizeof(addr)）
 
-### fcntl() - ノンブロッキングモード設定
+##### struct sockaddr_inとは
+ソケット通信機能を提供するシステム（OS）によって定義されている、IPv4（現在最も広く使われているインターネットプロトコル）のアドレス情報を格納するための専用の構造体。具体的には、以下の重要な情報を保持しています。
+
+- どのIPアドレスか？ (sin_addr)  
+addr.sin_addr.s_addr = INADDR_ANY: このコンピュータで利用可能な、全てのIPアドレスで待ち受けますという設定
+
+- どのポート番号か？ (sin_port)  
+sin_port = htons(_config.getPort());
+
+- アドレスの種類は何か？ (この場合はIPv4であることを示す sin_family)  
+  sin_family = AF_INET: 「通信の種類は、一般的なインターネット（IPv4）を使います」という設定
+
+- **bind()の引数として渡す場合は、struct sockaddrにキャストして渡す。**  
+sockaddr_inで住所を記入し、sockaddrという封筒に入れて関数に渡すイメージ
 
 ```cpp
+　if (bind(_serverSocket, (struct sockaddr*)&addr, sizeof(addr)) < 0)
+        throw std::runtime_error("bind failed");
+```
+<br>
+
+## fcntl() - ノンブロッキングモード設定　
+ファイルディスクリプタ（ソケットも含む）に対して各種操作や設定を行うための汎用システムコール
+
+```cpp
+int fcntl(int fd, int cmd, ... /* arg */ );
+
+//使用例
 fcntl(fd, F_SETFL, O_NONBLOCK);
 ```
+引数
+- `fd`：操作対象のファイルディスクリプタ（例：socket() や accept() が返す値）。
+- `cmd` ：実行したい操作の種類を表す定数（F_SETFL：ファイルステータスフラグ(実際の入出力動作に関わるフラグ)の設定）
+- 可変引数 `arg`：cmd に応じて渡す値。O_NONBLOCKを渡すとノンブロッキングモードを設定できる
 
-- `fd`をノンブロッキングモードにする
-- `read()`や`recv()`などがデータがない時もブロックせず即座に戻る
-- サーバーが複数クライアントを同時処理するため、全体を常に監視できる必要がある
 
-### listen() - 接続待ち受け設定
+#####**なぜノンブロッキングモードへの設定が必要なのか**  
+I/O をすべてノンブロッキングで扱う理由は、ひとつのプロセス／スレッド、ひとつの poll()ループだけで多くのクライアントを同時にさばき、いずれの操作でも「ハング」せず常に応答性を保つため。
 
+-「待ち状態で止まらない」    
+ブロッキング I/O（read/write/accept）が１つでも止まると、サーバー全体が固まってしまうため、すべてのソケットをノンブロッキングにしておけば常に「即時返答／即時制御」が可能
+
+-「１回の poll() だけ」要件の実現    
+サーバーを単一プロセス・単一スレッドで動かし、かつ複数の poll() 呼び出しも禁止された中で、ノンブロッキングかつ１回の poll() で「接続受け付け」「データ受信」「データ送信」「エラー検知」をまとめて扱うために必須です。
+
+-「ハング（応答停止）の防止とスケーラビリティ 」    
+サーバーが複数クライアントを同時処理するため、全体を常に監視できる必要があります。一人のクライアントが遅延や帯域制限で送受信が遅くても、他のクライアントへの処理が妨げられず、高い同時接続数にも耐えられる安定設計になります。
+
+
+
+<br>
+
+## listen() - 接続待ち受け設定
+#### ✅ ソケットを接続要求待ち状態（passive mode）にする **「接続窓口をOSが開く処理」**
 「このソケットでクライアントからの接続を待ち受ける」ことをOSに伝える関数
 
 ```cpp
@@ -262,16 +307,90 @@ int listen(int sockfd, int backlog);
 ```
 
 - `sockfd`: 接続待ち状態にするソケット（socket() + bind()済み）
-- `backlog`: OSに伝える「キューの長さ（待ちの行列数）」
-- `backlog`はOSが一時的に保存できる接続要求の最大数
+- `backlog`: OSに伝える「一時的に保存できる接続要求のキューの長さ（待ちの行列数）」
 - `SOMAXCONN`はシステム定義の最大数
 
-#### ✅ ソケットを接続要求待ち状態（passive mode）にする
-- **「接続窓口をOSが開く処理」**
+<br>
 
-### poll() - 多重化I/O
+## accept() - 接続要求受け入れ
+TCP の「待ち受けソケット（listen ソケット）」に来た接続要求を取り出し、クライアントとの通信に使う新しいソケットを返すシステムコール  
 
-複数のファイルディスクリプタを同時に監視し、イベント（読み込み、書き込み、切断等）発生を検出する関数
+```cpp
+int accept(int sockfd,
+           struct sockaddr *addr,
+           socklen_t *addrlen);
+```
+
+- sockfd  
+事前に socket()→bind()→listen() を呼んで「接続待ち」状態にしたソケットの FD。
+
+- addr, addrlen  
+クライアントのアドレス情報（IP／ポート）を受け取るバッファと、そのサイズを指すポインタ。  
+呼び出し前に *addrlen = sizeof(*addr) とセットしておく。  
+不要なら NULL, NULL でもよい。
+
+<br>
+
+## send()  - 送信兼書き込みシステムコール
+send() は、TCP／UDP ソケットなどにデータを送信するためのシステムコールです。write()／sendto() と似ていますが、オプションを細かく指定できる点が特徴です。
+
+```cpp
+ssize_t send(int sockfd,
+             const void *buf,
+             size_t len,
+             int flags);
+```
+
+- sockfd
+送信先のソケットのファイルディスクリプタ。socket() や accept() が返した値を使います。
+
+- buf
+送信したいバイト列を格納したバッファへのポインタ。
+
+- len
+送信するデータ長（バイト数）。
+
+- flags
+動作オプション。代表的なものは：  
+0：通常送信  
+MSG_DONTWAIT：ノンブロッキング送信（EAGAIN で返る）
+
+
+
+<br>
+
+## recv() - フラグ付きRead
+ソケットからデータを受信するためのシステムコールです。read() と似ていますが、フラグを指定できる点が特徴です。
+
+```cpp
+ssize_t recv(int sockfd,
+             void *buf,
+             size_t len,
+             int flags);
+```
+
+- sockfd
+データを受信したいソケットのファイルディスクリプタ（socket()／accept() が返す値）。
+
+- buf
+受信したデータを書き込むバッファへのポインタ。
+
+- len
+受信可能な最大バイト数（buf のサイズ）。
+
+- flags
+動作オプション。代表的なものは：  
+0：通常受信（ブロッキング／ノンブロッキングはソケット設定に依存）。　　
+MSG_DONTWAIT：この呼び出しのみノンブロッキングに
+
+
+<br>
+
+
+
+
+## poll() - 多重化I/O　　　　
+poll() は、複数のファイルディスクリプタ（ソケットやファイルなど）を一度に監視し、「どの FD が読み込み・書き込み・エラー可能になっているか」を教えてくれるシステムコールです。主にノンブロッキング I/O と組み合わせて使い、１つのスレッド／１回の呼び出しで多数の接続を効率よく扱います。
 
 ```cpp
 #include <poll.h>
@@ -285,10 +404,14 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout);
 - `timeout`: タイムアウト時間（-1で無限）
 - **返り値**: >0→イベント発生fdの数、0→タイムアウト、<0→エラー
 
-### TCP通信の特徴（ストリーム型）
+**timeoutの引数：-1 なら無限待ちについて**  
+いずれかの FD にイベント（読み込み可能／書き込み可能／エラーなど）が起こるまで、永遠にブロック（待機）します。  
+戻ってくるのは必ず何かしらのイベントが起きたあと。
 
-- サーバーは「どこまでが一つのメッセージか」を自分で判断する必要
-- `\r\n`または`\n`で終わるのが一般的
+
+<br>
+<br>
+
 
 ## 💡 実装パターン集
 
