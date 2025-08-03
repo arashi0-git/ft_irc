@@ -1,4 +1,4 @@
-# ft_irc - IRC Server Implementation
+<img width="1447" height="2142" alt="image" src="https://github.com/user-attachments/assets/4590d52c-507c-424f-bb4d-1418d155aa64" /># ft_irc - IRC Server Implementation
 
 C++98標準で実装されたIRCサーバーです。複数クライアントの同時接続、チャンネル管理、オペレーター機能をサポートしています。
 
@@ -243,6 +243,9 @@ sin_port = htons(_config.getPort());
 
 - アドレスの種類は何か？ (この場合はIPv4であることを示す sin_family)  
   sin_family = AF_INET: 「通信の種類は、一般的なインターネット（IPv4）を使います」という設定
+
+- **bind()の引数として渡す場合は、struct sockaddrにキャストして渡す。**
+sockaddr_inで住所を記入し、sockaddrという封筒に入れて関数に渡すイメージ
 
 ```cpp
 　if (bind(_serverSocket, (struct sockaddr*)&addr, sizeof(addr)) < 0)
