@@ -302,8 +302,24 @@ int listen(int sockfd, int backlog);
 
 <br>
 
-### accept() - 接続要求受け入れ
-クライアントからの接続要求を受け入れるために使用します。
+## accept() - 接続要求受け入れ
+TCP の「待ち受けソケット（listen ソケット）」に来た接続要求を取り出し、クライアントとの通信に使う新しいソケットを返すシステムコール  
+
+```cpp
+int accept(int sockfd,
+           struct sockaddr *addr,
+           socklen_t *addrlen);
+```
+
+- sockfd
+事前に socket()→bind()→listen() を呼んで「接続待ち」状態にしたソケットの FD。
+
+- addr, addrlen
+クライアントのアドレス情報（IP／ポート）を受け取るバッファと、そのサイズを指すポインタ。  
+呼び出し前に *addrlen = sizeof(*addr) とセットしておく。  
+不要なら NULL, NULL でもよい。
+
+
 
 
 ### poll() - 多重化I/O
