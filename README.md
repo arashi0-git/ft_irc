@@ -104,13 +104,13 @@ PRIVMSG #testchannel :Hello World!
 ## 🧠 技術的な学習内容
 
 使用したExternal Functions一覧
-・socket ・setsockopt ・close ・bind <br>
-・listen ・accept ・htons ・send ・recv <br>
-・fcntl ・poll <br>
+・socket ・setsockopt ・close ・bind   
+・listen ・accept ・htons ・send ・recv   
+・fcntl ・poll <br>  
 
 
 ### socket() - ソケット作成
-通信のエンドポイントを作成し、ソケットファイルディスクリプタを返します。
+通信のエンドポイントを作成し、ソケットファイルディスクリプタを返します。  
 この呼び出しで、「このサーバーは TCP/IP で通信を行うぞ！」 という「空の」ソケットがカーネル内に生成され、ファイルディスクリプタ（例：3, 4…）として返ってきます。
 
 
