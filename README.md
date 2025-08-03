@@ -103,18 +103,18 @@ PRIVMSG #testchannel :Hello World!
 
 ## 🧠 技術的な学習内容
 
-##　用語
+##### 用語
 - **TCPソケット**: TCPプロトコル（信頼性のある通信）を使用
 - **TCP**: Transmission Control Protocol（伝送制御プロトコル）- インターネット上で信頼性の高いデータ通信を確立するプロトコル（[参考](https://wa3.i-3-i.info/word19.html)）
 - **ソケット**: プログラムがネットワーク通信をするときに使う、専用の窓口（エンドポイント）
 
-##  IRCサーバーでTCPソケットを使う理由  
+#####  IRCサーバーでTCPソケットを使う理由  
 - 文字が順番通りに届く
 - 途中で欠けたり、重複しない
 - 双方向のやり取りが必要
 - → **TCPが適している**
 
-## 使用したExternal Functions一覧  
+##### 使用したExternal Functions一覧  
 ・socket ・setsockopt ・close ・bind   
 ・listen ・accept ・htons ・send ・recv   
 ・fcntl ・poll <br>  
@@ -212,7 +212,7 @@ setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 - ビッグエンディアン（Big Endian）  
 定義：数値の「最上位バイト」（most significant byte）を 先頭アドレス に置き、以降下位バイトを順に後ろに置く方式。
 
-# なぜ必要か？  
+##### なぜ必要か？  
 TCP/IP プロトコルでは、ヘッダー内のポート番号やアドレスなどを ビッグエンディアン（上位バイトを先）で送受信することが規定されています。  
 一方、PC やサーバーの CPU では リトルエンディアン（下位バイトを先）を使うものも多く、直接 bind() に渡すと byte 順序が合わず、正しいポート番号で待ち受けできなくなる恐れがあります。
 
