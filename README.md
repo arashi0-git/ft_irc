@@ -311,18 +311,44 @@ int accept(int sockfd,
            socklen_t *addrlen);
 ```
 
-- sockfd
+- sockfd  
 事前に socket()→bind()→listen() を呼んで「接続待ち」状態にしたソケットの FD。
 
-- addr, addrlen
+- addr, addrlen  
 クライアントのアドレス情報（IP／ポート）を受け取るバッファと、そのサイズを指すポインタ。  
 呼び出し前に *addrlen = sizeof(*addr) とセットしておく。  
 不要なら NULL, NULL でもよい。
 
+<br>
+
+## send()  - 送信兼書き込みシステムコール
+send() は、TCP／UDP ソケットなどにデータを送信するためのシステムコールです。write()／sendto() と似ていますが、オプションを細かく指定できる点が特徴です。
+
+```cpp
+ssize_t send(int sockfd,
+             const void *buf,
+             size_t len,
+             int flags);
+```
+
+- sockfd
+送信先のソケットのファイルディスクリプタ。socket() や accept() が返した値を使います。
+
+- buf
+送信したいバイト列を格納したバッファへのポインタ。
+
+- len
+送信するデータ長（バイト数）。
+
+- flags
+動作オプション。代表的なものは：  
+0：通常送信  
+MSG_DONTWAIT：ノンブロッキング送信（EAGAIN で返る）
 
 
+<br>
 
-### poll() - 多重化I/O
+## poll() - 多重化I/O
 
 複数のファイルディスクリプタを同時に監視し、イベント（読み込み、書き込み、切断等）発生を検出する関数
 
