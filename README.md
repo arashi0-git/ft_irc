@@ -403,6 +403,8 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout);
 戻ってくるのは必ず何かしらのイベントが起きたあと。
 
 
+<br>
+<br>
 
 
 ## 💡 実装パターン集
