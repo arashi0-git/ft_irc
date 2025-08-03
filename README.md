@@ -148,6 +148,7 @@ void Server::setupSocket() {
 }
 ```
 
+<br>
 
 ## socket() - 新しいTCPソケットを作成
 通信のエンドポイントを作成し、ソケットファイルディスクリプタを返します。  
@@ -176,6 +177,7 @@ int socket(int domain, int type, int protocol);
 
 
 
+<br>
 
 ## setupSocket() - ソケットオプション設定（再バインド許可）
 
@@ -204,6 +206,7 @@ setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
   ```
 - SO_REUSEADDR を立てると「TIME_WAIT」状態でも即座にバインド可能にする
 
+<br>
 
 ## htons() -  “Host To Network Short”  ポートの値を変換  
 16 ビット（short）の整数値を ホストバイトオーダー（実行環境依存：リトルエンディアンやビッグエンディアン）から ネットワークバイトオーダー（常にビッグエンディアン）に変換する関数
@@ -219,6 +222,7 @@ TCP/IP プロトコルでは、ヘッダー内のポート番号やアドレス�
 
 
 
+<br>
 
 ## bind() - アドレス割り当て （あだ名：ピコ太郎）
 作成したソケットにIPアドレスとポート番号を割り当てる関数。
@@ -244,18 +248,16 @@ sin_port = htons(_config.getPort());
 - アドレスの種類は何か？ (この場合はIPv4であることを示す sin_family)  
   sin_family = AF_INET: 「通信の種類は、一般的なインターネット（IPv4）を使います」という設定
 
-- **bind()の引数として渡す場合は、struct sockaddrにキャストして渡す。**
+- **bind()の引数として渡す場合は、struct sockaddrにキャストして渡す。**  
 sockaddr_inで住所を記入し、sockaddrという封筒に入れて関数に渡すイメージ
 
 ```cpp
 　if (bind(_serverSocket, (struct sockaddr*)&addr, sizeof(addr)) < 0)
         throw std::runtime_error("bind failed");
 ```
+<br>
 
-### accept() - 接続要求受け入れ
-クライアントからの接続要求を受け入れるために使用します。
-
-### fcntl() - ノンブロッキングモード設定
+## fcntl() - ノンブロッキングモード設定
 
 ```cpp
 fcntl(fd, F_SETFL, O_NONBLOCK);
@@ -264,6 +266,11 @@ fcntl(fd, F_SETFL, O_NONBLOCK);
 - `fd`をノンブロッキングモードにする
 - `read()`や`recv()`などがデータがない時もブロックせず即座に戻る
 - サーバーが複数クライアントを同時処理するため、全体を常に監視できる必要がある
+
+
+
+### accept() - 接続要求受け入れ
+クライアントからの接続要求を受け入れるために使用します。
 
 ### listen() - 接続待ち受け設定
 ソケットを"待ち受け状態"に設定するために使用します。
