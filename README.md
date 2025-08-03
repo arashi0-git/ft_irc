@@ -119,7 +119,7 @@ PRIVMSG #testchannel :Hello World!
 ・listen ・accept ・htons ・send ・recv   
 ・fcntl ・poll <br>  
 
-#### setupSocket() の実装例 (Server.cpp)
+# サーバーのソケットを立ち上げる関数　setupSocket() の実装例 (Server.cpp)
 
 ```cpp
 void Server::setupSocket() {
@@ -149,7 +149,7 @@ void Server::setupSocket() {
 ```
 
 
-### socket() - 新しいTCPソケットを作成
+## socket() - 新しいTCPソケットを作成
 通信のエンドポイントを作成し、ソケットファイルディスクリプタを返します。  
 この呼び出しで、「このサーバーは TCP/IP で通信を行うぞ！」 という「空の」ソケットがカーネル内に生成され、ファイルディスクリプタ（例：3, 4…）として返ってきます。
 
@@ -177,7 +177,7 @@ int socket(int domain, int type, int protocol);
 
 
 
-### setupSocket() - ソケットオプション設定（再バインド許可）
+## setupSocket() - ソケットオプション設定（再バインド許可）
 
 setsockopt() は、ソケットの動作を細かく制御するための関数で、作成したソケットに対して各種オプションを設定できます。
 「このソケットはOS上で指定ポートを使いTCPサーバーとして接続待ちをする」などの設定が可能です。
