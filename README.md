@@ -103,78 +103,23 @@ PRIVMSG #testchannel :Hello World!
 
 ## 🧠 技術的な学習内容
 
-使用したExternal Functions一覧  
-・socket ・setsockopt ・close ・bind   
-・listen ・accept ・htons ・send ・recv   
-・fcntl ・poll <br>  
-
-
-### socket() - ソケット作成
-通信のエンドポイントを作成し、ソケットファイルディスクリプタを返します。  
-この呼び出しで、「このサーバーは TCP/IP で通信を行うぞ！」 という「空の」ソケットがカーネル内に生成され、ファイルディスクリプタ（例：3, 4…）として返ってきます。
-
-
-```cpp
-int socket(int domain, int type, int protocol);
-```
-
-**パラメータ:**
-- **domain**: アドレスドメイン（**AF_INET (v4)**、**AF_INET6 (v6)**、**AF_UNIX**、**AF_RAW**）
-- **type**: ソケットタイプ（**SOCK_STREAM**、**SOCK_DGRAM**、**SOCK_RAW**）  
-  - **SOCK_STREAM** … 送った順序どおり、欠落なく届く TCP 向け。  
-  - **SOCK_DGRAM** … 小さなパケットを投げっぱなし、到達保証なしの UDP 向け。  
-  - **SOCK_RAW** … 自作プロトコルや ICMP/TCP ヘッダ解析・生成を行いたいときに使う上級者向け。
-- **protocol**: プロトコル（**0（デフォルト）**、**IPPROTO_UDP**、**IPPROTO_TCP**）
-
-
-### setupSocket()
-
-setsockopt() は、ソケットの動作を細かく制御するための関数で、作成したソケットに対して各種オプションを設定できます。
-「このソケットはOS上で指定ポートを使いTCPサーバーとして接続待ちをする」などの設定が可能です。
-
-#### 1. socket()関数で新しいTCPソケットを作成
-
+##　用語
 - **TCPソケット**: TCPプロトコル（信頼性のある通信）を使用
 - **TCP**: Transmission Control Protocol（伝送制御プロトコル）- インターネット上で信頼性の高いデータ通信を確立するプロトコル（[参考](https://wa3.i-3-i.info/word19.html)）
-- **ソケット**: ネットワーク通信を行うための出入口（エンドポイント）
+- **ソケット**: プログラムがネットワーク通信をするときに使う、専用の窓口（エンドポイント）
 
-- `AF_INET`: IPv4用
-- `SOCK_STREAM`: TCPプロトコル
-
-`socket(AF_INET, SOCK_STREAM, 0)` → IPv4+TCPで通信するソケットを作成
-
-#### 2. setsockopt()でソケットオプション設定（再バインド許可）
-
-```cpp
-int opt = 1;
-setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-```
-
-**パラメータ:**
-- `socket_fd`: 設定対象のソケットファイルディスクリプタ
-- `SOL_SOCKET`: ソケットレベルのオプション設定
-- `SO_REUSEADDR`: アドレス再利用オプション
-- `&opt`: オプションの値へのポインタ（1=有効化）
-- `sizeof(opt)`: 値のサイズ（バイト数）
-
-#### ✅ サーバーでのSO_REUSEADDRの目的
-
-- サーバーを止めてすぐに起動し直せるようにするため
-- サーバー強制終了・再起動時、ポートが「TIME_WAIT」状態で残る
-- その状態でbind()を呼ぶと以下のエラーが発生：
-  ```cpp
-  bind: Address already in use
-  ```
-- SO_REUSEADDR を立てると「TIME_WAIT」状態でも即座にバインド可能にする
-
-#### 3. IRCサーバーでTCPソケットを使う理由
-
+- ####  IRCサーバーでTCPソケットを使う理由  
 - 文字が順番通りに届く
 - 途中で欠けたり、重複しない
 - 双方向のやり取りが必要
 - → **TCPが適している**
 
-setupSocket() の実装例
+ ## 使用したExternal Functions一覧  
+・socket ・setsockopt ・close ・bind   
+・listen ・accept ・htons ・send ・recv   
+・fcntl ・poll <br>  
+
+#### setupSocket() の実装例 (Server.cpp)
 
 ```cpp
 void Server::setupSocket() {
@@ -202,6 +147,63 @@ void Server::setupSocket() {
         throw std::runtime_error("listen failed");
 }
 ```
+
+
+### socket() - 新しいTCPソケットを作成
+通信のエンドポイントを作成し、ソケットファイルディスクリプタを返します。  
+この呼び出しで、「このサーバーは TCP/IP で通信を行うぞ！」 という「空の」ソケットがカーネル内に生成され、ファイルディスクリプタ（例：3, 4…）として返ってきます。
+
+
+```cpp
+int socket(int domain, int type, int protocol);
+```
+
+**パラメータ:**
+- **domain**: アドレスドメイン（**AF_INET (v4)**、**AF_INET6 (v6)**、**AF_UNIX**、**AF_RAW**）
+- **type**: ソケットタイプ（**SOCK_STREAM**、**SOCK_DGRAM**、**SOCK_RAW**）  
+  - **SOCK_STREAM** … 送った順序どおり、欠落なく届く TCP 向け。  
+  - **SOCK_DGRAM** … 小さなパケットを投げっぱなし、到達保証なしの UDP 向け。  
+  - **SOCK_RAW** … 自作プロトコルや ICMP/TCP ヘッダ解析・生成を行いたいときに使う上級者向け。
+- **protocol**: プロトコル（**0（デフォルト）**、**IPPROTO_UDP**、**IPPROTO_TCP**）
+
+##　使用例（Server.cpp)
+```cpp
+int socket(int domain, int type, int protocol);
+```
+- `AF_INET`: IPv4用
+- `SOCK_STREAM`: TCPプロトコル  
+`socket(AF_INET, SOCK_STREAM, 0)` → IPv4+TCPで通信するソケットを作成
+
+
+
+
+### setupSocket() - ソケットオプション設定（再バインド許可）
+
+setsockopt() は、ソケットの動作を細かく制御するための関数で、作成したソケットに対して各種オプションを設定できます。
+「このソケットはOS上で指定ポートを使いTCPサーバーとして接続待ちをする」などの設定が可能です。
+
+```cpp
+int opt = 1;
+setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+```
+
+**パラメータ:**
+- `socket_fd`: 設定対象のソケットファイルディスクリプタ
+- `SOL_SOCKET`: ソケットレベルのオプション設定
+- `SO_REUSEADDR`: アドレス再利用オプション
+- `&opt`: オプションの値へのポインタ（1=有効化）
+- `sizeof(opt)`: 値のサイズ（バイト数）
+
+#### ✅ サーバーでのSO_REUSEADDRの目的
+
+- サーバーを止めてすぐに起動し直せるようにするため
+- サーバー強制終了・再起動時、ポートが「TIME_WAIT」状態で残る
+- その状態でbind()を呼ぶと以下のエラーが発生：
+  ```cpp
+  bind: Address already in use
+  ```
+- SO_REUSEADDR を立てると「TIME_WAIT」状態でも即座にバインド可能にする
+
 
 
 ### bind() - アドレス割り当て
