@@ -8,6 +8,7 @@ SRCS = main.cpp \
     	srcs/Channel.cpp \
     	srcs/Client.cpp \
     	srcs/ServerConfig.cpp \
+		srcs/signal.cpp \
     	srcs/handler/handler.cpp \
     	srcs/handler/handle_join.cpp \
     	srcs/handler/handle_authentication.cpp \

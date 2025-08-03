@@ -1,7 +1,9 @@
 #include "Server.hpp"
 #include "ServerConfig.hpp"
+#include "csignal"
 
 int main(int ac, char **av) {
+    signal(SIGINT, signal_handler);
     try {
         ServerConfig config(ac, av);
         Server server(config);
