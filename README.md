@@ -220,7 +220,7 @@ TCP/IP プロトコルでは、ヘッダー内のポート番号やアドレス�
 
 
 
-### bind() - アドレス割り当て
+## bind() - アドレス割り当て （あだ名：ピコ太郎）
 作成したソケットにIPアドレスとポート番号を割り当てる関数。
 主にサーバー側で利用され、クライアントからの接続を受け付ける場所（ポート）を指定します。  
 
@@ -245,24 +245,8 @@ sin_port = htons(_config.getPort());
   sin_family = AF_INET: 「通信の種類は、一般的なインターネット（IPv4）を使います」という設定
 
 ```cpp
-// std::bind を使った関数ラッピングの例
-#include <iostream>
-
-void test_function(int a, int b) {
-    printf("a=%d, b=%d\n", a, b);
-}
-
-int main(int argc, const char * argv[]) {
-    auto func1 = std::bind(test_function, std::placeholders::_1, std::placeholders::_2);
-    func1(1, 2);
-    // -> a=1, b=2
-
-    auto func2 = std::bind(test_function, std::placeholders::_1, 9);
-    func2(1);
-    // -> a=1, b=9
-
-    return 0;
-}
+　if (bind(_serverSocket, (struct sockaddr*)&addr, sizeof(addr)) < 0)
+        throw std::runtime_error("bind failed");
 ```
 
 ### accept() - 接続要求受け入れ
