@@ -128,6 +128,15 @@ int socket(int domain, int type, int protocol);
 
 
 ### bind() - アドレス割り当て
+
+bind()の引数
+```cpp
+int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+```
+- `sockfd`: `socket()`で作成したソケットのfd
+- `addr`: `sockaddr_in`のポインタ（バインド先の情報）
+- `addrlen`: `addr`構造体のサイズ（sizeof(addr)）
+  
 ソケットにIPアドレスとポート番号を割り当てる関数です。クライアントからの接続を受け付ける場所（ポート）を指定します。
 
 ```cpp
@@ -233,15 +242,7 @@ setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 - 双方向のやり取りが必要
 - → **TCPが適している**
 
-### bind()の引数
 
-```cpp
-int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
-```
-
-- `sockfd`: `socket()`で作成したソケットのfd
-- `addr`: `sockaddr_in`のポインタ（バインド先の情報）
-- `addrlen`: `addr`構造体のサイズ（sizeof(addr)）
 
 ### fcntl() - ノンブロッキングモード設定
 
