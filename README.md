@@ -108,13 +108,13 @@ PRIVMSG #testchannel :Hello World!
 - **TCP**: Transmission Control Protocol（伝送制御プロトコル）- インターネット上で信頼性の高いデータ通信を確立するプロトコル（[参考](https://wa3.i-3-i.info/word19.html)）
 - **ソケット**: プログラムがネットワーク通信をするときに使う、専用の窓口（エンドポイント）
 
-- ####  IRCサーバーでTCPソケットを使う理由  
+##  IRCサーバーでTCPソケットを使う理由  
 - 文字が順番通りに届く
 - 途中で欠けたり、重複しない
 - 双方向のやり取りが必要
 - → **TCPが適している**
 
- ## 使用したExternal Functions一覧  
+## 使用したExternal Functions一覧  
 ・socket ・setsockopt ・close ・bind   
 ・listen ・accept ・htons ・send ・recv   
 ・fcntl ・poll <br>  
@@ -204,6 +204,17 @@ setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
   ```
 - SO_REUSEADDR を立てると「TIME_WAIT」状態でも即座にバインド可能にする
 
+
+### htons() -  “Host To Network Short”  ポートの値を変換  
+16 ビット（short）の整数値を ホストバイトオーダー（実行環境依存：リトルエンディアンやビッグエンディアン）から ネットワークバイトオーダー（常にビッグエンディアン）に変換する関数
+- リトルエンディアン（Little Endian）  
+定義：数値の「最下位バイト」（least significant byte）を 先頭アドレス に置き、以降上位バイトを順に後ろに置く方式。
+- ビッグエンディアン（Big Endian）  
+定義：数値の「最上位バイト」（most significant byte）を 先頭アドレス に置き、以降下位バイトを順に後ろに置く方式。
+
+# なぜ必要か？  
+TCP/IP プロトコルでは、ヘッダー内のポート番号やアドレスなどを ビッグエンディアン（上位バイトを先）で送受信することが規定されています。  
+一方、PC やサーバーの CPU では リトルエンディアン（下位バイトを先）を使うものも多く、直接 bind() に渡すと byte 順序が合わず、正しいポート番号で待ち受けできなくなる恐れがあります。
 
 
 ### bind() - アドレス割り当て
