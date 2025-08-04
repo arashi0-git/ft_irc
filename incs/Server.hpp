@@ -19,7 +19,7 @@
 class Server {
     private:
         ServerConfig _config;
-        int _serverSocket;
+        int _serverSocket; // store the socket file descriptor from listen()
         std::vector<struct pollfd> _fds;
         std::map<int, std::string> clientBuffer;
         std::map<std::string, Channel> channels;
