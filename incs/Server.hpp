@@ -15,6 +15,7 @@
 #include <sstream>
 #include "Client.hpp"
 #include "Channel.hpp"
+extern bool g_signal;
 
 class Server {
     private:
@@ -58,5 +59,5 @@ class Server {
         void sendNamesReply(int fd, const Channel &channel);
 
 };
-
+void signal_handler(int signal);
 #endif

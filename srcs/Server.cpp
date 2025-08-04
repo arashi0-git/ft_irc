@@ -1,5 +1,4 @@
 #include "Server.hpp"
-
 void Server::disconnectClient(int fd) {
     close(fd);
 
@@ -58,9 +57,9 @@ void Server::acceptNewClient() {
 }
 
 void Server::run() {
-    while (true) {
+    while (g_signal){
         int pollresult = poll(_fds.data(), _fds.size(), -1);
-        if (pollresult < 0) {
+        if (pollresult < 0 && g_signal != false) {
             throw std::runtime_error("poll failed");
         }
         for (size_t i = 0; i < _fds.size(); ++i) {
@@ -73,6 +72,11 @@ void Server::run() {
             }
         }
     }
+    for (size_t i = 1; i < _fds.size(); ++i)
+        if (_fds[i].fd >= 0)
+            close(_fds[i].fd);
+    if (_serverSocket >= 0)
+        close(_serverSocket);
 }
 
 void Server::initializePoll() {
