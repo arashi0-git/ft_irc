@@ -1,4 +1,5 @@
 #include "Server.hpp"
+
 void Server::disconnectClient(int fd) {
     close(fd);
 
@@ -14,6 +15,7 @@ void Server::disconnectClient(int fd) {
 }
 
 void Server::handleClient(int fd) {
+
     char buffer[1024];
     std::memset(buffer, 0, sizeof(buffer));
 
@@ -23,20 +25,24 @@ void Server::handleClient(int fd) {
         disconnectClient(fd);
         return;
     }
+
     if (bytesReceived == 0) {
         std::cout << "Client disconnected fd = " << fd << std::endl;
         disconnectClient(fd);
         return;
     }
+
     if (bytesReceived > 0) {
         clientBuffer[fd].append(buffer, bytesReceived);
 
+        std::cout << "hello" << std::endl;
         size_t pos;
         while ((pos = clientBuffer[fd].find('\n')) != std::string::npos) {
             std::string line = clientBuffer[fd].substr(0, pos);
             clientBuffer[fd].erase(0, pos + 1);
-            if (!line.empty() && line[line.length() - 1] == '\r')
+            if (!line.empty() && line[line.length() - 1] == '\r') {
                 line.erase(line.length() - 1);
+            }
             processCommand(fd, line);
         }
     }
@@ -57,12 +63,14 @@ void Server::acceptNewClient() {
 }
 
 void Server::run() {
-    while (g_signal){
+    while (g_signal) {
+        //_fds.data() points at the first pollfd in that array (equivalent to &_fds[0])
         int pollresult = poll(_fds.data(), _fds.size(), -1);
         if (pollresult < 0 && g_signal != false) {
             throw std::runtime_error("poll failed");
         }
         for (size_t i = 0; i < _fds.size(); ++i) {
+            // if poll() tells us this fd is ready for reading, then handle it in bit-mask.
             if (_fds[i].revents & POLLIN) {
                 if (_fds[i].fd == _serverSocket) {
                     acceptNewClient();
@@ -74,7 +82,7 @@ void Server::run() {
     }
     for (size_t i = 1; i < _fds.size(); ++i)
         if (_fds[i].fd >= 0)
-            close(_fds[i].fd);
+            Server::disconnectClient(i);
     if (_serverSocket >= 0)
         close(_serverSocket);
 }

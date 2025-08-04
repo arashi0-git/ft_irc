@@ -1,6 +1,7 @@
 #include "Server.hpp"
 
 void Server::sendError(int fd, const std::string &message) {
+    
     std::string response = ":" + _serverName + " " + message + "\r\n";
     send(fd, response.c_str(), response.length(), 0);
 }
