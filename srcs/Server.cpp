@@ -8,7 +8,6 @@ void Server::disconnectClient(int fd) {
             break;
         }
     }
-
     _clients.erase(fd);
     clientBuffer.erase(fd);
 }
@@ -72,9 +71,9 @@ void Server::run() {
             }
         }
     }
-    for (size_t i = 1; i < _fds.size(); ++i)
+    for (int i = _fds.size() - 1; i >= 1; --i)
         if (_fds[i].fd >= 0)
-            close(_fds[i].fd);
+            Server::disconnectClient(_fds[i].fd);
     if (_serverSocket >= 0)
         close(_serverSocket);
 }

@@ -4,7 +4,15 @@
 
 void Server::handleKick(int fd, std::istringstream &iss) {
     std::string channelName, user, reason;
-    iss >> channelName >> user >> reason;
+    iss >> channelName >> user;
+    getline(iss, reason);
+
+    if (!reason.empty() && reason[0] == ' ') {
+        reason.erase(0, 1);
+    }
+    if (!reason.empty() && reason[0] == ':') {
+        reason.erase(0, 1);
+    }
 
     if (channelName.empty() || user.empty()) {
         sendError(fd, "461 :Not enough parameters");
