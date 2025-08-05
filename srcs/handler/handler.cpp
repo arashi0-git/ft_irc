@@ -1,7 +1,6 @@
 #include "Server.hpp"
 
 void Server::sendError(int fd, const std::string &message) {
-    
     std::string response = ":" + _serverName + " " + message + "\r\n";
     send(fd, response.c_str(), response.length(), 0);
 }
@@ -10,6 +9,7 @@ void Server::processCommand(int fd, const std::string &line) {
     std::istringstream iss(line);
     std::string command;
     iss >> command;
+
 
     if (command == "NICK")
         handleNick(fd, iss);

@@ -20,6 +20,7 @@ void Server::handleClient(int fd) {
     std::memset(buffer, 0, sizeof(buffer));
 
     ssize_t bytesReceived = recv(fd, buffer, sizeof(buffer), 0);
+    std::cout << bytesReceived << std::endl;
     if (bytesReceived < 0) {
         std::cerr << "recv failed on fd " << fd << std::endl;
         disconnectClient(fd);
@@ -35,8 +36,7 @@ void Server::handleClient(int fd) {
     if (bytesReceived > 0) {
         clientBuffer[fd].append(buffer, bytesReceived);
 
-        std::cout << "hello" << std::endl;
-        size_t pos;
+         size_t pos;
         while ((pos = clientBuffer[fd].find('\n')) != std::string::npos) {
             std::string line = clientBuffer[fd].substr(0, pos);
             clientBuffer[fd].erase(0, pos + 1);

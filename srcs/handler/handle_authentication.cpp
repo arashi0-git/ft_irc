@@ -1,9 +1,10 @@
 #include "Server.hpp"
 
+// toCheck
 bool Server::canAuthenticate(const Client &client) const {
-    return client.hasPasswordReceived() && !client.getNickname().empty() &&
+    retu
+}rn client.hasPasswordReceived() && !client.getNickname().empty() &&
            !client.getUsername().empty() && !client.getRealname().empty();
-}
 
 void Server::sendWelcome(int fd) {
     const Client &client = _clients[fd];
@@ -93,5 +94,10 @@ void Server::handleNick(int fd, std::istringstream &iss) {
     if (canAuthenticate(_clients[fd])) {
         _clients[fd].setAuthenticated(true);
         sendWelcome(fd);
+    } else {
+        std::cout << "[AUTH FAILED] fd=" << fd << " pass=" << _clients[fd].hasPasswordReceived()
+                  << " nick=" << !_clients[fd].getNickname().empty()
+                  << " user=" << !_clients[fd].getUsername().empty()
+                  << " real=" << !_clients[fd].getRealname().empty() << "\n";
     }
 }
