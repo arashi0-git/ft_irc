@@ -3,7 +3,7 @@
 void Server::sendNamesReply(int fd, const Channel &channel) {
     std::string reply = "353 " + _clients[fd].getNickname() + " = " + channel.getName() + " :";
     for (std::set<int>::const_iterator it = channel.getMembers().begin();
-         it != channel.getMembers().end(); ++it) {
+        it != channel.getMembers().end(); ++it) {
         std::string nick = _clients[*it].getNickname();
         if (channel.isOperator(*it))
             reply += "@" + nick + " ";
@@ -21,6 +21,11 @@ void Server::sendNamesReply(int fd, const Channel &channel) {
 void Server::handleJoin(int fd, std::istringstream &iss) {
     std::string channelName, key;
     iss >> channelName >> key;
+
+    if (!_clients[fd].isAuthenticated()) {
+        sendError(fd, "451 :You have not registered");
+        return;
+    }
 
     if (channelName.empty()) {
         sendError(fd, "461 :Not enough parameters");

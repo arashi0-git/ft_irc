@@ -38,7 +38,7 @@ void Server::handlePrivMsg(int fd, std::istringstream &iss) {
         std::string prefix = ":" + sender + " PRIVMSG " + target + " :" + message + "\r\n";
 
         for (std::set<int>::iterator it = channel.getMembers().begin();
-             it != channel.getMembers().end(); ++it) {
+            it != channel.getMembers().end(); ++it) {
             if (*it != fd) {
                 send(*it, prefix.c_str(), prefix.length(), 0);
             }

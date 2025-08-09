@@ -30,13 +30,14 @@ $(NAME): $(OBJS)
 
 
 clean:
-	rm -f $(OBJS) 
+	rm -f $(OBJS)
 
 fclean: clean
-	rm -f $(NAME) 
+	rm -f $(NAME)
 
 re: fclean all
 
-mc: all clean
+run: $(NAME)
+	./$(NAME) 6667 pass
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re run

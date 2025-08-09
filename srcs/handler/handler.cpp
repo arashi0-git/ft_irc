@@ -9,6 +9,14 @@ void Server::processCommand(int fd, const std::string &line) {
     std::istringstream iss(line);
     std::string command;
     iss >> command;
+    for (size_t i = 0; i < command.length(); ++i) {
+        command[i] = std::toupper(static_cast<unsigned char>(command[i]));
+    }
+
+    if ((command == "NICK" || command == "USER") && !_clients[fd].hasPasswordReceived()) {
+        sendError(fd, "464 :Password required");
+        return;
+    }
 
     if (command == "NICK")
         handleNick(fd, iss);
@@ -31,5 +39,5 @@ void Server::processCommand(int fd, const std::string &line) {
     else if (command == "PART")
         handlePart(fd, iss);
     else
-        sendError(fd, "Unknown command");
+        sendError(fd,"421 " + command +  " :Unknown command");
 }
