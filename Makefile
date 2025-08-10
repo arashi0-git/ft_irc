@@ -40,4 +40,7 @@ re: fclean all
 run: $(NAME)
 	./$(NAME) 6667 pass
 
+val: $(NAME)
+	valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes --log-file=memory_exhaustion.log ./$(NAME) 6667 pass
+
 .PHONY: all clean fclean re run
