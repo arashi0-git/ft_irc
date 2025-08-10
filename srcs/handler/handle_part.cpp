@@ -13,11 +13,13 @@ void Server::handlePart(int fd, std::istringstream &iss) {
 
     if (channels.find(channelName) == channels.end()) {
         sendError(fd, "403 " + channelName + " :No such channel");
+        logCommand("PART", fd, false);
         return;
     }
 
     if (channelName[0] != '#') {
         sendError(fd, "476 " + channelName + " :Invalid channel name");
+        logCommand("PART", fd, false);
         return;
     }
 
@@ -25,6 +27,7 @@ void Server::handlePart(int fd, std::istringstream &iss) {
 
     if (!channel.hasMember(fd)) {
         sendError(fd, "442 " + channelName + " :You're not on that channel");
+        logCommand("PART", fd, false);
         return;
     }
 
@@ -46,4 +49,5 @@ void Server::handlePart(int fd, std::istringstream &iss) {
     if (channel.getMembers().empty()) {
         channels.erase(channelName);
     }
+    logCommand("PART", fd, true);
 }

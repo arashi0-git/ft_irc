@@ -27,7 +27,8 @@ class Server {
         std::map<std::string, int> _nickToFd;
         std::map<int, Client> _clients;
         std::string _serverName;
-    
+
+
     public:
         Server(const ServerConfig &config);
         void run();
@@ -57,6 +58,8 @@ class Server {
         void handleModeLimit(int fd, Channel &channel, const std::string &mode, const std::string &limit);
         bool isNumeric(const std::string &str) const;
         void sendNamesReply(int fd, const Channel &channel);
+        void logCommand(const std::string &command, int fd, bool success);
+        void logMessage(const std::string &message);
 
 };
 void signal_handler(int signal);

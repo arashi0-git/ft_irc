@@ -90,7 +90,7 @@ void Server::setupSocket() {
     _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (_serverSocket < 0)
         throw std::runtime_error("Failed to create socket");
-    
+
     int opt = 1;
     if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
         throw std::runtime_error("setsockopt failed");
@@ -125,4 +125,11 @@ bool Server::isNumeric(const std::string &str) const {
     return true;
 }
 
+void Server::logCommand(const std::string &command, int fd, bool success) {
+    std::string status = success ? "SUCCESS" : "FAILED";
+    std::cout << "[" << command << "] fd=" << fd << " " << status << std::endl;
+}
 
+void Server::logMessage(const std::string &message) {
+    std::cout << "[LOG] " << message << std::endl;
+}
