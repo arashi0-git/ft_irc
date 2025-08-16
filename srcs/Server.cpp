@@ -133,3 +133,4 @@ void Server::logCommand(const std::string &command, int fd, bool success) {
 void Server::logMessage(const std::string &message) {
     std::cout << "[LOG] " << message << std::endl;
 }
+

@@ -18,7 +18,8 @@ SRCS = main.cpp \
     	srcs/handler/handle_mode.cpp \
     	srcs/handler/handle_mode_utils.cpp \
     	srcs/handler/handle_invite.cpp \
-    	srcs/handler/handle_part.cpp
+    	srcs/handler/handle_part.cpp \
+    	srcs/handler/handleHelp.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 

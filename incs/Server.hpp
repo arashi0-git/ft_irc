@@ -48,6 +48,7 @@ class Server {
         void handleMode(int fd, std::istringstream &iss);
         void handleInvite(int fd, std::istringstream &iss);
         void handlePart(int fd, std::istringstream &iss);
+        void handleHelp(int fd, std::istringstream &iss);
         void sendError(int fd, const std::string &message);
         void sendWelcome(int fd);
         bool canAuthenticate(const Client &client) const;
@@ -60,7 +61,7 @@ class Server {
         void sendNamesReply(int fd, const Channel &channel);
         void logCommand(const std::string &command, int fd, bool success);
         void logMessage(const std::string &message);
-
 };
+
 void signal_handler(int signal);
 #endif

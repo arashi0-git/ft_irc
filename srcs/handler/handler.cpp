@@ -38,6 +38,8 @@ void Server::processCommand(int fd, const std::string &line) {
         handleInvite(fd, iss);
     else if (command == "PART")
         handlePart(fd, iss);
+    else if (command == "HELP")
+        handleHelp(fd, iss);
     else
         sendError(fd,"421 " + command +  " :Unknown command");
 }
