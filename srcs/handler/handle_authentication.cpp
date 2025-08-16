@@ -2,9 +2,9 @@
 
 // toCheck
 bool Server::canAuthenticate(const Client &client) const {
-    retu
-}rn client.hasPasswordReceived() && !client.getNickname().empty() &&
+    return client.hasPasswordReceived() && !client.getNickname().empty() &&
            !client.getUsername().empty() && !client.getRealname().empty();
+}
 
 void Server::sendWelcome(int fd) {
     const Client &client = _clients[fd];
