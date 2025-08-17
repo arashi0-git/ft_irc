@@ -4,6 +4,7 @@
 #include "Channel.hpp"
 #include "Client.hpp"
 #include "ServerConfig.hpp"
+#include <algorithm>
 #include <cstring>
 #include <fcntl.h>
 #include <map>
@@ -13,7 +14,6 @@
 #include <stdexcept>
 #include <string>
 #include <sys/socket.h>
-#include <algorithm>
 #include <unistd.h>
 #include <vector>
 extern bool g_signal;
@@ -21,11 +21,10 @@ extern bool g_signal;
 class Server {
   private:
     ServerConfig _config;
-    int _serverSocket; // store the socket file descriptor from listen()
+    int _serverSocket;
     std::vector<struct pollfd> _fds;
     std::map<int, std::string> clientBuffer;
     std::map<std::string, Channel> channels;
-    // To check if the usef named <NICK> exsit.
     std::map<std::string, int> _nickToFd;
     std::map<int, Client> _clients;
     std::string _serverName;
@@ -49,6 +48,11 @@ class Server {
     void handleMode(int fd, std::istringstream &iss);
     void handleInvite(int fd, std::istringstream &iss);
     void handlePart(int fd, std::istringstream &iss);
+    void handleHelp(int fd, std::istringstream &iss);
+    // yuhi
+    void handlePing(int fd, std::istringstream &iss);
+    void handleWho(int fd, std::istringstream &iss);
+    //yuhi
     void sendError(int fd, const std::string &message);
     void sendWelcome(int fd);
     bool canAuthenticate(const Client &client) const;
@@ -61,6 +65,9 @@ class Server {
                          const std::string &limit);
     bool isNumeric(const std::string &str) const;
     void sendNamesReply(int fd, const Channel &channel);
+    void logCommand(const std::string &command, int fd, bool success);
+    void logMessage(const std::string &message);
 };
+
 void signal_handler(int signal);
 #endif

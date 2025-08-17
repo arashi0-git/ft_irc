@@ -9,7 +9,6 @@ void Server::disconnectClient(int fd) {
             break;
         }
     }
-
     _clients.erase(fd);
     clientBuffer.erase(fd);
 }
@@ -20,7 +19,6 @@ void Server::handleClient(int fd) {
     std::memset(buffer, 0, sizeof(buffer));
 
     ssize_t bytesReceived = recv(fd, buffer, sizeof(buffer), 0);
-    std::cout << bytesReceived << std::endl;
     if (bytesReceived < 0) {
         std::cerr << "recv failed on fd " << fd << std::endl;
         disconnectClient(fd);
@@ -36,7 +34,7 @@ void Server::handleClient(int fd) {
     if (bytesReceived > 0) {
         clientBuffer[fd].append(buffer, bytesReceived);
 
-         size_t pos;
+        size_t pos;
         while ((pos = clientBuffer[fd].find('\n')) != std::string::npos) {
             std::string line = clientBuffer[fd].substr(0, pos);
             clientBuffer[fd].erase(0, pos + 1);
@@ -80,9 +78,9 @@ void Server::run() {
             }
         }
     }
-    for (size_t i = 1; i < _fds.size(); ++i)
+    for (int i = _fds.size() - 1; i >= 1; --i)
         if (_fds[i].fd >= 0)
-            Server::disconnectClient(i);
+            Server::disconnectClient(_fds[i].fd);
     if (_serverSocket >= 0)
         close(_serverSocket);
 }
@@ -143,4 +141,13 @@ bool Server::isNumeric(const std::string &str) const {
             return false;
     }
     return true;
+}
+
+void Server::logCommand(const std::string &command, int fd, bool success) {
+    std::string status = success ? "SUCCESS" : "FAILED";
+    std::cout << "[" << command << "] fd=" << fd << " " << status << std::endl;
+}
+
+void Server::logMessage(const std::string &message) {
+    std::cout << "[LOG] " << message << std::endl;
 }

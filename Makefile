@@ -18,7 +18,8 @@ SRCS = main.cpp \
     	srcs/handler/handle_mode.cpp \
     	srcs/handler/handle_mode_utils.cpp \
     	srcs/handler/handle_invite.cpp \
-    	srcs/handler/handle_part.cpp
+    	srcs/handler/handle_part.cpp \
+    	srcs/handler/handleHelp.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 
@@ -30,13 +31,17 @@ $(NAME): $(OBJS)
 
 
 clean:
-	rm -f $(OBJS) 
+	rm -f $(OBJS)
 
 fclean: clean
-	rm -f $(NAME) 
+	rm -f $(NAME)
 
 re: fclean all
 
-mc: all clean
+run: $(NAME)
+	./$(NAME) 6667 pass
 
-.PHONY: all clean fclean re
+val: $(NAME)
+	valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes --log-file=memory_exhaustion.log ./$(NAME) 6667 pass
+
+.PHONY: all clean fclean re run

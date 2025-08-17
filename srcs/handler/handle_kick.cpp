@@ -4,20 +4,31 @@
 
 void Server::handleKick(int fd, std::istringstream &iss) {
     std::string channelName, user, reason;
-    iss >> channelName >> user >> reason;
+    iss >> channelName >> user;
+    getline(iss, reason);
+
+    if (!reason.empty() && reason[0] == ' ') {
+        reason.erase(0, 1);
+    }
+    if (!reason.empty() && reason[0] == ':') {
+        reason.erase(0, 1);
+    }
 
     if (channelName.empty() || user.empty()) {
         sendError(fd, "461 :Not enough parameters");
+        logCommand("KICK", fd, false);
         return;
     }
 
     if (channelName[0] != '#') {
         sendError(fd, "476 " + channelName + " :Invalid channel name");
+        logCommand("KICK", fd, false);
         return;
     }
 
     if (channels.find(channelName) == channels.end()) {
         sendError(fd, "403 " + channelName + " :No such channel");
+        logCommand("KICK", fd, false);
         return;
     }
 
@@ -25,11 +36,13 @@ void Server::handleKick(int fd, std::istringstream &iss) {
 
     if (!channel.hasMember(fd)) {
         sendError(fd, "442 " + channelName + " :You're not on that channel");
+        logCommand("KICK", fd, false);
         return;
     }
 
     if (!channel.isOperator(fd)) {
         sendError(fd, "482 " + channelName + " :You're not channel operator");
+        logCommand("KICK", fd, false);
         return;
     }
 
@@ -42,11 +55,13 @@ void Server::handleKick(int fd, std::istringstream &iss) {
     }
     if (userFd == -1) {
         sendError(fd, "401 " + user + " :No such nick");
+        logCommand("KICK", fd, false);
         return;
     }
 
     if (!channel.hasMember(userFd)) {
         sendError(fd, "441 " + user + " " + channelName + " :They aren't on that channel");
+        logCommand("KICK", fd, false);
         return;
     }
 
@@ -64,4 +79,5 @@ void Server::handleKick(int fd, std::istringstream &iss) {
     if (channel.getMembers().size() == 0) {
         channels.erase(channelName);
     }
+    logCommand("KICK", fd, true);
 }
