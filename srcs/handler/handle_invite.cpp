@@ -55,5 +55,7 @@ void Server::handleInvite(int fd, std::istringstream &iss) {
     std::string msg =
         ":" + _clients[fd].getNickname() + " INVITE " + nickName + " :" + channelName + "\r\n";
     send(it->second, msg.c_str(), msg.length(), 0);
+    std::string reply = "341 " + _clients[fd].getNickname() + " " + nickName + " :" + channelName + "\r\n";
+    send(fd, reply.c_str(), reply.length(), 0);
     logCommand("INVITE", fd, true);
 }

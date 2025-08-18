@@ -51,6 +51,12 @@ void Server::handleJoin(int fd, std::istringstream &iss) {
         return;
     }
 
+    if(channel.hasLimit()&& channel.getMembers().size()>= channel.getLimit()){
+        sendError(fd, "471 " + channelName + " :Cannot join channel (+l)");
+        logCommand("JOIN", fd, false);
+        return;
+    }
+
     if (channel.isInviteOnly() && !channel.isInvited(fd)) {
         sendError(fd, "473 " + channelName + " :Cannot join channel (+i)");
         logCommand("JOIN", fd, false);
