@@ -104,10 +104,5 @@ void Server::handleNick(int fd, std::istringstream &iss) {
     if (canAuthenticate(_clients[fd])) {
         _clients[fd].setAuthenticated(true);
         sendWelcome(fd);
-    } else {
-        std::cout << "[AUTH FAILED] fd=" << fd << " pass=" << _clients[fd].hasPasswordReceived()
-                  << " nick=" << !_clients[fd].getNickname().empty()
-                  << " user=" << !_clients[fd].getUsername().empty()
-                  << " real=" << !_clients[fd].getRealname().empty() << "\n";
     }
 }
