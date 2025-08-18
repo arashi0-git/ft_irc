@@ -5,6 +5,8 @@ void Server::sendError(int fd, const std::string &message) {
     send(fd, response.c_str(), response.length(), 0);
 }
 
+// yuhi
+
 void Server::processCommand(int fd, const std::string &line) {
     std::istringstream iss(line);
     std::string command;
@@ -23,7 +25,9 @@ void Server::processCommand(int fd, const std::string &line) {
     else if (command == "USER")
         handleUser(fd, iss);
     else if (command == "PRIVMSG")
-        handlePrivMsg(fd, iss);
+        handleMessageVerb(fd, iss, "PRIVMSG");
+    else if (command == "NOTICE")
+        handleMessageVerb(fd, iss, "NOTICE");
     else if (command == "JOIN")
         handleJoin(fd, iss);
     else if (command == "PASS")
@@ -40,6 +44,14 @@ void Server::processCommand(int fd, const std::string &line) {
         handlePart(fd, iss);
     else if (command == "HELP")
         handleHelp(fd, iss);
+    else if (command == "PING")
+        handlePing(fd, iss);
+    else if (command == "WHO")
+        handleWho(fd, iss);
+    // CAP : Client Capability Negotiation
+    // QUIT condition prevent server sending any 421 error message to a closed client
+    else if (command == "CAP" || command == "QUIT") // yuhi
+        return;
     else
-        sendError(fd,"421 " + command +  " :Unknown command");
+        sendError(fd, "421 " + command + " :Unknown command");
 }

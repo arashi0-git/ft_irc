@@ -35,11 +35,12 @@ void Server::handleTopic(int fd, std::istringstream &iss) {
 
     if (topic.empty()) {
         if (channel.getTopic().empty()) {
-            std::string msg =
-                "331 " + _clients[fd].getNickname() + " " + channelName + " :No topic is set\r\n";
+            std::string msg = ":" + _serverName + "331 " + _clients[fd].getNickname() + " " +
+                              channelName + " :No topic is set\r\n";
             send(fd, msg.c_str(), msg.length(), 0);
         } else {
-            std::string msg2 = "332 " + _clients[fd].getNickname() + " " + channelName + " :" + channel.getTopic() + "\r\n";
+            std::string msg2 = ":" + _serverName + "332 " + _clients[fd].getNickname() + " " +
+                               channelName + " :" + channel.getTopic() + "\r\n";
             send(fd, msg2.c_str(), msg2.length(), 0);
         }
         logCommand("TOPIC", fd, true);
@@ -55,7 +56,7 @@ void Server::handleTopic(int fd, std::istringstream &iss) {
         std::string msg =
             ":" + _clients[fd].getNickname() + " TOPIC " + channelName + ": " + topic + "\r\n";
         for (std::set<int>::iterator it = channel.getMembers().begin();
-            it != channel.getMembers().end(); ++it) {
+             it != channel.getMembers().end(); ++it) {
             send(*it, msg.c_str(), msg.length(), 0);
         }
         logCommand("TOPIC", fd, true);
