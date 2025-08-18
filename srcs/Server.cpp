@@ -85,7 +85,8 @@ void Server::initializePoll() {
     pfd.revents = 0;
     _fds.push_back(pfd);
 }
-
+//AF_INET je IPv4, SOCK_STREAM says that its going to be TCP, SO_REUSEADDR server can reacces the same port
+// INADDR_ANY server will accpet all connections ffrom everywhere
 void Server::setupSocket() {
     _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (_serverSocket < 0)
