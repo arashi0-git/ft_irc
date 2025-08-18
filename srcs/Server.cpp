@@ -47,7 +47,9 @@ void Server::handleClient(int fd) {
 }
 
 void Server::acceptNewClient() {
-    int newSocket = accept(_serverSocket, NULL, NULL);
+    struct sockaddr_in addr;
+    socklen_t len = sizeof(addr);
+    int newSocket = accept(_serverSocket, (struct sockaddr *)&addr, &len);
     if (newSocket < 0) {
         throw std::runtime_error("accept failed");
     }
@@ -56,7 +58,12 @@ void Server::acceptNewClient() {
     pfd.events = POLLIN;
     pfd.revents = 0;
     _fds.push_back(pfd);
-    _clients[newSocket] = Client(newSocket);
+
+    Client cli(newSocket);
+    if (addr.sin_family == AF_INET) {
+        cli.setHostname(std::string(inet_ntoa(addr.sin_addr))); // 例: "127.0.0.1"
+    }
+    _clients[newSocket] = cli;
     std::cout << "New client connected fd = " << newSocket << std::endl;
 }
 

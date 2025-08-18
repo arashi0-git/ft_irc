@@ -41,7 +41,7 @@ class Server {
     void handleNick(int fd, std::istringstream &iss);
     void handleUser(int fd, std::istringstream &iss);
     void handleJoin(int fd, std::istringstream &iss);
-    void handlePrivMsg(int fd, std::istringstream &iss);
+    void handleMessageVerb(int fd, std::istringstream &iss, const std::string &verb);
     void handlePass(int fd, std::istringstream &iss);
     void handleKick(int fd, std::istringstream &iss);
     void handleTopic(int fd, std::istringstream &iss);
@@ -52,7 +52,7 @@ class Server {
     // yuhi
     void handlePing(int fd, std::istringstream &iss);
     void handleWho(int fd, std::istringstream &iss);
-    //yuhi
+    // yuhi
     void sendError(int fd, const std::string &message);
     void sendWelcome(int fd);
     bool canAuthenticate(const Client &client) const;
