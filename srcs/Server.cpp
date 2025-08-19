@@ -1,4 +1,5 @@
 #include "Server.hpp"
+
 void Server::disconnectClient(int fd) {
     close(fd);
 
@@ -13,6 +14,7 @@ void Server::disconnectClient(int fd) {
 }
 
 void Server::handleClient(int fd) {
+
     char buffer[1024];
     std::memset(buffer, 0, sizeof(buffer));
 
@@ -22,11 +24,13 @@ void Server::handleClient(int fd) {
         disconnectClient(fd);
         return;
     }
+
     if (bytesReceived == 0) {
         std::cout << "Client disconnected fd = " << fd << std::endl;
         disconnectClient(fd);
         return;
     }
+
     if (bytesReceived > 0) {
         clientBuffer[fd].append(buffer, bytesReceived);
 
@@ -34,15 +38,18 @@ void Server::handleClient(int fd) {
         while ((pos = clientBuffer[fd].find('\n')) != std::string::npos) {
             std::string line = clientBuffer[fd].substr(0, pos);
             clientBuffer[fd].erase(0, pos + 1);
-            if (!line.empty() && line[line.length() - 1] == '\r')
+            if (!line.empty() && line[line.length() - 1] == '\r') {
                 line.erase(line.length() - 1);
+            }
             processCommand(fd, line);
         }
     }
 }
 
 void Server::acceptNewClient() {
-    int newSocket = accept(_serverSocket, NULL, NULL);
+    struct sockaddr_in addr;
+    socklen_t len = sizeof(addr);
+    int newSocket = accept(_serverSocket, (struct sockaddr *)&addr, &len);
     if (newSocket < 0) {
         throw std::runtime_error("accept failed");
     }
@@ -51,18 +58,25 @@ void Server::acceptNewClient() {
     pfd.events = POLLIN;
     pfd.revents = 0;
     _fds.push_back(pfd);
-    _clients[newSocket] = Client(newSocket);
+
+    Client cli(newSocket);
+    if (addr.sin_family == AF_INET) {
+        cli.setHostname(std::string(inet_ntoa(addr.sin_addr))); // 例: "127.0.0.1"
+    }
+    _clients[newSocket] = cli;
     std::cout << "New client connected fd = " << newSocket << std::endl;
 }
 
 void Server::run() {
-    while (g_signal){
+    while (g_signal) {
+        //_fds.data() points at the first pollfd in that array (equivalent to &_fds[0])
         int pollresult = poll(_fds.data(), _fds.size(), -1);
         if (pollresult < 0 && g_signal != false) {
             throw std::runtime_error("poll failed");
         }
         for (size_t i = 0; i < _fds.size(); ++i) {
-            if (_fds[i].revents &POLLIN) {
+            // if poll() tells us this fd is ready for reading, then handle it in bit-mask.
+            if (_fds[i].revents & POLLIN) {
                 if (_fds[i].fd == _serverSocket) {
                     acceptNewClient();
                 } else {
@@ -80,29 +94,36 @@ void Server::run() {
 
 void Server::initializePoll() {
     struct pollfd pfd;
+    // Set which FD to watch
     pfd.fd = _serverSocket;
+    // Tell it what events you care about
+    // POLLIN means “notify me when this socket is ready for reading.
     pfd.events = POLLIN;
+    // reset: revents is where poll() tells you what actually happened on that FD
     pfd.revents = 0;
     _fds.push_back(pfd);
 }
 //AF_INET je IPv4, SOCK_STREAM says that its going to be TCP, SO_REUSEADDR server can reacces the same port
 // INADDR_ANY server will accpet all connections ffrom everywhere
 void Server::setupSocket() {
+    // create socket (AF_INET=IPv4, SOCK_STREAM=TCP, 0=default protocol)
     _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (_serverSocket < 0)
         throw std::runtime_error("Failed to create socket");
 
+    // set socket allow rebinding (socket_fd, edit socket setting, rebinding, opt=turn on, size)
     int opt = 1;
     if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
         throw std::runtime_error("setsockopt failed");
 
+    // structure for IPv4
     struct sockaddr_in addr;
     std::memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(_config.getPort());
+    addr.sin_addr.s_addr = INADDR_ANY;
 
-    if (bind(_serverSocket, (struct sockaddr*)&addr, sizeof(addr)) < 0)
+    if (bind(_serverSocket, (struct sockaddr *)&addr, sizeof(addr)) < 0)
         throw std::runtime_error("bind failed");
 
     if (fcntl(_serverSocket, F_SETFL, O_NONBLOCK) < 0)
@@ -112,16 +133,20 @@ void Server::setupSocket() {
         throw std::runtime_error("listen failed");
 }
 
-Server::Server(const ServerConfig &config) : _config(config), _serverSocket(-1), _serverName("ft_irc.server") {
+// constructor
+Server::Server(const ServerConfig &config)
+    : _config(config), _serverSocket(-1), _serverName("ft_irc.server") {
     setupSocket();
     initializePoll();
     std::cout << "Server is running on port " << _config.getPort() << std::endl;
 }
 
 bool Server::isNumeric(const std::string &str) const {
-    if (str.empty()) return false;
+    if (str.empty())
+        return false;
     for (size_t i = 0; i < str.length(); ++i) {
-        if (!std::isdigit(str[i])) return false;
+        if (!std::isdigit(str[i]))
+            return false;
     }
     return true;
 }
@@ -134,4 +159,3 @@ void Server::logCommand(const std::string &command, int fd, bool success) {
 void Server::logMessage(const std::string &message) {
     std::cout << "[LOG] " << message << std::endl;
 }
-

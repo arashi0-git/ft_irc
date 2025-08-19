@@ -577,26 +577,3 @@ ft_irc/
 chmod +x ./*.sh
 ./basic_test.sh && ./advanced_attack_test.sh && ./memory_exhaustion_test.sh
 ```
-
-## ⚙️ 技術仕様
-
-- **言語**: C++98
-- **コンパイラ**: c++
-- **フラグ**: -Wall -Wextra -Werror -std=c++98
-- **外部ライブラリ**: 禁止（標準ライブラリのみ）
-- **I/O**: 非ブロッキング（poll使用）
-- **プロトコル**: TCP/IP (IPv4/IPv6対応)
-- **RFC準拠**: IRCプロトコル準拠
-- **セキュリティ**: 高度攻撃耐性、メモリリーク0保証
-
-## 🏆 テスト結果
-
-**セキュリティ評価:** ⭐⭐⭐⭐⭐
-- メモリリーク: 0 bytes (全テストケース)
-- バッファオーバーフロー攻撃: 完全耐性
-- レースコンディション: エラーなし
-- 大量負荷処理: 200+同時接続対応
-
----
-
-*42 School ft_irc project - C++98 IRC Server Implementation*

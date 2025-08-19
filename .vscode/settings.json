@@ -87,6 +87,7 @@
         "list": "cpp",
         "map": "cpp",
         "set": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "csignal": "cpp"
     }
 }
