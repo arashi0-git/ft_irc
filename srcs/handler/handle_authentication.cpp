@@ -7,10 +7,11 @@ bool Server::canAuthenticate(const Client &client) const {
 }
 
 void printAuthStatus(Client &cl, int fd) {
-    std::cout << "Auth incomplete fd=" << fd << " PASS:" << (cl.hasPasswordReceived() ? "✔" : "✘")
+    std::cout << "[AUTH] fd=" << fd << " (PASS:" << (cl.hasPasswordReceived() ? "✔" : "✘")
               << " NICK:" << (cl.getNickname().empty() ? "✘" : cl.getNickname())
               << " USER:" << (cl.getUsername().empty() ? "✘" : cl.getUsername())
-              << " REALNAME:" << (cl.getRealname().empty() ? "✘" : cl.getRealname()) << std::endl;
+              << " REALNAME:" << (cl.getRealname().empty() ? "✘" : cl.getRealname()) << ")"
+              << std::endl;
 }
 
 void Server::sendWelcome(int fd) {
@@ -57,7 +58,7 @@ void Server::handleUser(int fd, std::istringstream &iss) {
     Client &cl = _clients[fd];
 
     // 462: already registered //todo todo
-    if (cl.isAuthenticated()) {
+    if (cl.hasUserReceived()) {
         sendError(fd, "462 :You may not reregister");
         logCommand("USER", fd, false);
         return;
@@ -88,14 +89,14 @@ void Server::handleUser(int fd, std::istringstream &iss) {
 
     cl.setUsername(username);
     cl.setRealname(realname);
+    cl.setUserReceived(true);
     logCommand("USER", fd, true);
 
     if (canAuthenticate(cl)) {
         cl.setAuthenticated(true);
         sendWelcome(fd);
-    } else {
-        printAuthStatus(cl, fd);
     }
+    printAuthStatus(cl, fd);
 }
 
 bool isValidNickname(const std::string &nick) {

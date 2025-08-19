@@ -1,11 +1,13 @@
 #include "Client.hpp"
 
-Client::Client() : _fd(-1), _hasPasswordReceived(false), _authenticated(false) {}
+Client::Client()
+    : _fd(-1), _hasPasswordReceived(false), _hasUserReceived(false), _authenticated(false) {}
 
 Client::Client(int fd) {
     _fd = fd;
     _authenticated = false;
     _hasPasswordReceived = false;
+    _hasUserReceived = false;
 }
 
 Client::~Client() {}
@@ -36,3 +38,7 @@ void Client::setAuthenticated(bool authenticated) { _authenticated = authenticat
 void Client::setPasswordReceived(bool value) { _hasPasswordReceived = value; }
 
 bool Client::hasPasswordReceived() const { return _hasPasswordReceived; }
+
+void Client::setUserReceived(bool value) { _hasUserReceived = value; }
+
+bool Client::hasUserReceived() const { return _hasUserReceived; }

@@ -21,6 +21,7 @@ void Server::processCommand(int fd, const std::string &line) {
 
     if ((command == "NICK" || command == "USER") && !_clients[fd].hasPasswordReceived()) {
         sendError(fd, "464 :Password required");
+        logCommand(command, fd, false);
         return;
     }
 
