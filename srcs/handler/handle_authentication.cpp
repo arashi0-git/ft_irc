@@ -71,6 +71,7 @@ void Server::handleUser(int fd, std::istringstream &iss) {
         return;
     }
 
+
     // Grab trailing realname (may contain spaces)
     std::string realname;
     std::getline(iss, realname);

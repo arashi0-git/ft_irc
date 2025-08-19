@@ -86,7 +86,7 @@ void Server::handleMode(int fd, std::istringstream &iss) {
 
     // target すら無い → パラメータ不足
     if (target.empty()) {
-        sendError(fd, "461 MODE :Not enough parameters");
+        sendError(fd, "461 :Not enough parameters");
         logCommand("MODE", fd, false);
         return;
     }
@@ -148,7 +148,7 @@ void Server::handleMode(int fd, std::istringstream &iss) {
     bool modeRequiresTarget = (mode == "+o" || mode == "-o");
 
     if (modeRequiresTarget && param.empty()) {
-        sendError(fd, "461 MODE :Not enough parameters");
+        sendError(fd, "461 :Not enough parameters");
         logCommand("MODE", fd, false);
         return;
     }

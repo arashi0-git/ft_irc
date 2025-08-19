@@ -13,7 +13,7 @@ void Server::handleInvite(int fd, std::istringstream &iss) {
     }
 
     if (channelName[0] != '#') {
-        sendError(fd, "476 " + channelName + " :Invalid channel name");
+        sendError(fd, "476 " + channelName + " :Invalid channel name (Usage: JOIN <#channel>)");
         logCommand("INVITE", fd, false);
         return;
     }
@@ -40,7 +40,7 @@ void Server::handleInvite(int fd, std::istringstream &iss) {
 
     std::map<std::string, int>::iterator it = _nickToFd.find(nickName);
     if (it == _nickToFd.end()) {
-        sendError(fd, "401 " + nickName + " :No such nick");
+        sendError(fd, "401 " + nickName + " :No such nick/channel");
         logCommand("INVITE", fd, false);
         return;
     }

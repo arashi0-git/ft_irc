@@ -14,7 +14,7 @@ void Server::handleTopic(int fd, std::istringstream &iss) {
     }
 
     if (channelName[0] != '#') {
-        sendError(fd, "476 " + channelName + " :Invalid channel name");
+        sendError(fd, "476 " + channelName + " :Invalid channel name (Usage: JOIN <#channel>)");
         logCommand("TOPIC", fd, false);
         return;
     }
@@ -28,7 +28,7 @@ void Server::handleTopic(int fd, std::istringstream &iss) {
     Channel &channel = channels[channelName];
 
     if (!channel.hasMember(fd)) {
-        sendError(fd, "482 " + channelName + " :You're not on that channel");
+        sendError(fd, "442 " + channelName + " :You're not on that channel"); 
         logCommand("TOPIC", fd, false);
         return;
     }
