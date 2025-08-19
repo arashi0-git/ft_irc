@@ -24,7 +24,7 @@ void Server::handlePass(int fd, std::istringstream &iss) {
     }
 
     if (_clients[fd].hasPasswordReceived()) {
-        sendError(fd, "462 :You may not reregister");
+        sendError(fd, "462 :You may not register");
         logCommand("PASS", fd, false);
         return;
     }
@@ -62,7 +62,7 @@ void Server::handleUser(int fd, std::istringstream &iss) {
         realname = realname.substr(1);
 
     if (_clients[fd].isAuthenticated()) {
-        sendError(fd, "462 :You may not reregister");
+        sendError(fd, "462 :You may not register");
         logCommand("USER", fd, false);
         return;
     }
