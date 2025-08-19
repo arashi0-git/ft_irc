@@ -18,7 +18,7 @@ void Server::handlePart(int fd, std::istringstream &iss) {
     }
 
     if (channelName[0] != '#') {
-        sendError(fd, "476 " + channelName + " :Invalid channel name");
+        sendError(fd, "476 " + channelName + " :Invalid channel name (Usage: JOIN <#channel>)");
         logCommand("PART", fd, false);
         return;
     }

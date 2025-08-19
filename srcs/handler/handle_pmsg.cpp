@@ -111,7 +111,7 @@ void Server::handleMessageVerb(int fd, std::istringstream &iss, const std::strin
             }
             if (targetFd == -1) {
                 if(verb == "PRIVMSG")
-                    sendError(fd, "401 " + target + " :No such nick");
+                    sendError(fd, "401 " + target + " :No such nick/channel");
                 continue;
             }
 

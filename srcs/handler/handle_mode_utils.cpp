@@ -5,7 +5,7 @@ void Server::handleModeOperator(int fd, Channel &channel, const std::string &mod
                                 const std::string &target) {
     std::map<std::string, int>::iterator it = _nickToFd.find(target);
     if (it == _nickToFd.end()) {
-        sendError(fd, "401 " + target + " :No such nick");
+        sendError(fd, "401 " + target + " :No such nick/channel");
         return;
     }
 
@@ -17,13 +17,13 @@ void Server::handleModeOperator(int fd, Channel &channel, const std::string &mod
 
     if (mode == "+o") {
         if (channel.isOperator(targetFd)) {
-            sendError(fd, "482 " + channel.getName() + " :Target is already an operator");
+            sendError(fd, "482 " + channel.getName() + " :You're not channel operator");
             return;
         }
         channel.addOperator(targetFd);
     } else if (mode == "-o") {
         if (!channel.isOperator(targetFd)) {
-            sendError(fd, "482 " + channel.getName() + " :Target is not an operator");
+            sendError(fd, "482 " + channel.getName() + " :You're not channel operator");
             return;
         }
         channel.removeOperator(targetFd);
@@ -77,8 +77,12 @@ void Server::handleModeTopic(int fd, Channel &channel, const std::string &mode) 
 void Server::handleModeKey(int fd, Channel &channel, const std::string &mode,
                            const std::string &key) {
     if (mode == "+k") {
+        if(channel.hasKey()){
+            sendError(fd, "467 " + channel.getName() + " :Channel key already set");
+            return;
+        }
         if (key.empty()) {
-            sendError(fd, "461 " + channel.getName() + " :Key not provided");
+            sendError(fd, "461 " + channel.getName() + " :Not enough parameters");
             return;
         }
         channel.setKey(key);
@@ -104,7 +108,7 @@ void Server::handleModeLimit(int fd, Channel &channel, const std::string &mode,
                              const std::string &limit) {
     if (mode == "+l") {
         if (limit.empty() || !isNumeric(limit)) {
-            sendError(fd, "461 " + channel.getName() + " :Limit value required");
+            sendError(fd, "461 " + channel.getName() + " :Not enough parameters");
             return;
         }
         channel.setLimit(std::atoi(limit.c_str()));

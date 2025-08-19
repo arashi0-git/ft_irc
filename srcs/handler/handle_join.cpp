@@ -46,7 +46,7 @@ void Server::handleJoin(int fd, std::istringstream &iss) {
     Channel &channel = channels[channelName];
 
     if (channel.hasMember(fd)) {
-        sendError(fd, "442 " + channelName + "You are already on that channel");
+        sendError(fd, "442 " + channelName + ":You are already on that channel");
         logCommand("JOIN", fd, false);
         return;
     }

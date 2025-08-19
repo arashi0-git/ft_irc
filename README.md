@@ -452,7 +452,7 @@ for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end()
     }
 }
 if (userFd == -1) {
-    sendError(fd, "401 " + user + " :No such nick");
+    sendError(fd, "401 " + user + " :No such nick/channel");
     return;
 }
 ```
@@ -461,7 +461,7 @@ if (userFd == -1) {
 ### チャンネル名検証
 ```cpp
 if (channelName[0] != '#') {
-    sendError(fd, "476 " + channelName + " :Invalid channel name");
+    sendError(fd, "476 " + channelName + " :Invalid channel name (Usage: JOIN <#channel>)");
     return;
 }
 ```
@@ -480,7 +480,7 @@ for (std::set<int>::iterator it = channel.getMembers().begin(); it != channel.ge
 ```cpp
 std::map<std::string, int>::iterator it = _nickToFd.find(target);
 if (it == _nickToFd.end()) {
-    sendError(fd, "401 " + target + " :No such nick");
+    sendError(fd, "401 " + target + " :No such nick/channel");
     return;
 }
 
