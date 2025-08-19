@@ -49,7 +49,6 @@ class Server {
     void handleInvite(int fd, std::istringstream &iss);
     void handlePart(int fd, std::istringstream &iss);
     void handleHelp(int fd, std::istringstream &iss);
-    // yuhi
     void handlePing(int fd, std::istringstream &iss);
     void handleWho(int fd, std::istringstream &iss);
     // yuhi
