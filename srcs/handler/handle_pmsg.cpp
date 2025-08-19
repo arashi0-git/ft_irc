@@ -55,12 +55,14 @@ void Server::handleMessageVerb(int fd, std::istringstream &iss, const std::strin
         message.erase(0, 1);
 
     if (targetsToken.empty()) {
-        sendError(fd, std::string("411 :No recipient given (") + verb + ")");
+        if(verb == "PRIVMSG")
+            sendError(fd, std::string("411 :No recipient given (") + verb + ")");
         logCommand(verb, fd, false);
         return;
     }
     if (message.empty()) {
-        sendError(fd, "412 :No text to send");
+        if(verb == "PRIVMSG")
+            sendError(fd, "412 :No text to send");
         logCommand(verb, fd, false);
         return;
     }
@@ -75,13 +77,15 @@ void Server::handleMessageVerb(int fd, std::istringstream &iss, const std::strin
             // ---- チャンネル宛 ----
             std::map<std::string, Channel>::iterator chit = channels.find(target);
             if (chit == channels.end()) {
-                sendError(fd, "403 " + target + " :No such channel");
+                if(verb == "PRIVMSG")
+                    sendError(fd, "403 " + target + " :No such channel");
                 continue;
             }
             Channel &channel = chit->second;
 
             if (!channel.hasMember(fd)) {
-                sendError(fd, "404 " + channel.getName() + " :Cannot send to channel");
+                if(verb == "PRIVMSG")
+                    sendError(fd, "404 " + channel.getName() + " :Cannot send to channel");
                 continue;
             }
 
@@ -106,7 +110,8 @@ void Server::handleMessageVerb(int fd, std::istringstream &iss, const std::strin
                 }
             }
             if (targetFd == -1) {
-                sendError(fd, "401 " + target + " :No such nick");
+                if(verb == "PRIVMSG")
+                    sendError(fd, "401 " + target + " :No such nick");
                 continue;
             }
 
