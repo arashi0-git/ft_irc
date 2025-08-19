@@ -57,7 +57,7 @@ void Server::handlePass(int fd, std::istringstream &iss) {
 void Server::handleUser(int fd, std::istringstream &iss) {
     Client &cl = _clients[fd];
 
-    // 462: already registered //todo todo
+    // 462: already registered 
     if (cl.hasUserReceived()) {
         sendError(fd, "462 :You may not reregister");
         logCommand("USER", fd, false);
