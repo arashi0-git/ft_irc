@@ -40,6 +40,8 @@ void Channel::invite(int fd) { _invited.insert(fd); }
 
 bool Channel::isInvited(int fd) const { return _invited.count(fd); }
 
+void Channel::removeInvite(int fd) { _invited.erase(fd); }
+
 void Channel::setInviteOnly(bool flag) { _inviteOnly = flag; }
 
 bool Channel::isInviteOnly() const { return _inviteOnly; }

@@ -13,6 +13,7 @@ void Server::disconnectClient(int fd) {
     for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
         it->second.removeMember(fd);
         it->second.removeOperator(fd);
+        it->second.removeInvite(fd);
     }
 
     _clients.erase(fd);

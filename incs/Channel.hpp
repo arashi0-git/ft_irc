@@ -41,6 +41,7 @@ class Channel {
 
         void invite(int fd);
         bool isInvited(int fd) const;
+        void removeInvite(int fd);
 
         void setInviteOnly(bool flag);
         bool isInviteOnly() const;
