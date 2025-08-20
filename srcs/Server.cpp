@@ -16,7 +16,7 @@ void Server::disconnectClient(int fd) {
     }
 
     _clients.erase(fd);
-    clientBuffer.erase(fd);
+    _clientBuffer.erase(fd);
 }
 
 void Server::handleClient(int fd) {
@@ -38,12 +38,12 @@ void Server::handleClient(int fd) {
     }
 
     if (bytesReceived > 0) {
-        clientBuffer[fd].append(buffer, bytesReceived);
+        _clientBuffer[fd].append(buffer, bytesReceived);
 
         size_t pos;
-        while ((pos = clientBuffer[fd].find('\n')) != std::string::npos) {
-            std::string line = clientBuffer[fd].substr(0, pos);
-            clientBuffer[fd].erase(0, pos + 1);
+        while ((pos = _clientBuffer[fd].find('\n')) != std::string::npos) {
+            std::string line = _clientBuffer[fd].substr(0, pos);
+            _clientBuffer[fd].erase(0, pos + 1);
             if (!line.empty() && line[line.length() - 1] == '\r') {
                 line.erase(line.length() - 1);
             }
@@ -109,8 +109,8 @@ void Server::initializePoll() {
     pfd.revents = 0;
     _fds.push_back(pfd);
 }
-//AF_INET je IPv4, SOCK_STREAM says that its going to be TCP, SO_REUSEADDR server can reacces the same port
-// INADDR_ANY server will accpet all connections ffrom everywhere
+//AF_INET is IPv4, SOCK_STREAM says that its going to be TCP, SO_REUSEADDR server can reacces the same port
+// INADDR_ANY server will accpet all connections from everywhere
 void Server::setupSocket() {
     // create socket (AF_INET=IPv4, SOCK_STREAM=TCP, 0=default protocol)
     _serverSocket = socket(AF_INET, SOCK_STREAM, 0);

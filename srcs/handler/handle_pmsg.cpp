@@ -75,8 +75,8 @@ void Server::handleMessageVerb(int fd, std::istringstream &iss, const std::strin
 
         if (!target.empty() && target[0] == '#') {
             // ---- チャンネル宛 ----
-            std::map<std::string, Channel>::iterator chit = channels.find(target);
-            if (chit == channels.end()) {
+            std::map<std::string, Channel>::iterator chit = _channels.find(target);
+            if (chit == _channels.end()) {
                 if(verb == "PRIVMSG")
                     sendError(fd, "403 " + target + " :No such channel");
                 continue;

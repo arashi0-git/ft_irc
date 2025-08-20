@@ -23,8 +23,8 @@ class Server {
     ServerConfig _config;
     int _serverSocket;
     std::vector<struct pollfd> _fds;
-    std::map<int, std::string> clientBuffer;
-    std::map<std::string, Channel> channels;
+    std::map<int, std::string> _clientBuffer;
+    std::map<std::string, Channel> _channels;
     std::map<std::string, int> _nickToFd;
     std::map<int, Client> _clients;
     std::string _serverName;
@@ -54,12 +54,12 @@ class Server {
     void sendError(int fd, const std::string &message);
     void sendWelcome(int fd);
     bool canAuthenticate(const Client &client) const;
-    void handleModeOperator(int fd, Channel &channel, const std::string &mode,
+    bool handleModeOperator(int fd, Channel &channel, const std::string &mode,
                             const std::string &target);
-    void handleModeInviteOnly(int fd, Channel &channel, const std::string &mode);
-    void handleModeTopic(int fd, Channel &channel, const std::string &mode);
-    void handleModeKey(int fd, Channel &channel, const std::string &mode, const std::string &key);
-    void handleModeLimit(int fd, Channel &channel, const std::string &mode,
+    bool handleModeInviteOnly(int fd, Channel &channel, const std::string &mode);
+    bool handleModeTopic(int fd, Channel &channel, const std::string &mode);
+    bool handleModeKey(int fd, Channel &channel, const std::string &mode, const std::string &key);
+    bool handleModeLimit(int fd, Channel &channel, const std::string &mode,
                          const std::string &limit);
     bool isNumeric(const std::string &str) const;
     void sendNamesReply(int fd, const Channel &channel);
