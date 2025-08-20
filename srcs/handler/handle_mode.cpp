@@ -200,11 +200,9 @@ void Server::handleMode(int fd, std::istringstream &iss) {
         break;
     case 'l':
         success = handleModeLimit(fd, channel, mode, param);
-        logCommand("MODE", fd, true);
         break;
     default:
         sendError(fd, "472 " + std::string(1, modechar) + " :is unknown mode char to me");
-        logCommand("MODE", fd, false);
         break;
     }
     logCommand("MODE", fd, success);
