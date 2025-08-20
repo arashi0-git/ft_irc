@@ -20,13 +20,13 @@ void Server::handleModeOperator(int fd, Channel &channel, const std::string &mod
             sendError(fd, "482 " + channel.getName() + " :You're not channel operator");
             return;
         }
-        channel.addOperator(targetFd);
+        channel.addOperator(targetFd); // set ignores duplicates.
     } else if (mode == "-o") {
         if (!channel.isOperator(targetFd)) {
             sendError(fd, "482 " + channel.getName() + " :You're not channel operator");
             return;
         }
-        channel.removeOperator(targetFd);
+        channel.removeOperator(targetFd); // if fd doesn't exist, nothing happens
     } else {
         sendError(fd, "472 " + mode + ":is unknown mode char to me");
         return;
@@ -77,7 +77,7 @@ void Server::handleModeTopic(int fd, Channel &channel, const std::string &mode) 
 void Server::handleModeKey(int fd, Channel &channel, const std::string &mode,
                            const std::string &key) {
     if (mode == "+k") {
-        if(channel.hasKey()){
+        if (channel.hasKey()) {
             sendError(fd, "467 " + channel.getName() + " :Channel key already set");
             return;
         }

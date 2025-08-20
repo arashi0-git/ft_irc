@@ -35,11 +35,11 @@ void Server::handleTopic(int fd, std::istringstream &iss) {
 
     if (topic.empty()) {
         if (channel.getTopic().empty()) {
-            std::string msg = ":" + _serverName + "331 " + _clients[fd].getNickname() + " " +
+            std::string msg = ":" + _serverName + " 331 " + _clients[fd].getNickname() + " " +
                               channelName + " :No topic is set\r\n";
             send(fd, msg.c_str(), msg.length(), 0);
         } else {
-            std::string msg2 = ":" + _serverName + "332 " + _clients[fd].getNickname() + " " +
+            std::string msg2 = ":" + _serverName + " 332 " + _clients[fd].getNickname() + " " +
                                channelName + " :" + channel.getTopic() + "\r\n";
             send(fd, msg2.c_str(), msg2.length(), 0);
         }

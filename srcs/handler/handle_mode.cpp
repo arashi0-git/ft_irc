@@ -79,7 +79,6 @@
 //     }
 // }
 
-// yuhi
 void Server::handleMode(int fd, std::istringstream &iss) {
     std::string target, mode, param;
     iss >> target >> mode >> param;
@@ -167,7 +166,6 @@ void Server::handleMode(int fd, std::istringstream &iss) {
         return;
     }
 
-    // yuhi ban list
     const std::string me = _clients[fd].getNickname();
     if (mode == "b" && param.empty()) {
         // MODE #chan b ＝ Banリスト照会 → 空リスト終端だけ返して静かに終わる

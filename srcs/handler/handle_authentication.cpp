@@ -59,7 +59,7 @@ void Server::handleUser(int fd, std::istringstream &iss) {
 
     // 462: already registered 
     if (cl.hasUserReceived()) {
-        sendError(fd, "462 :You may not reregister");
+        sendError(fd, "462 :You may not register");
         logCommand("USER", fd, false);
         return;
     }
