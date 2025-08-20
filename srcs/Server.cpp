@@ -10,7 +10,8 @@ void Server::disconnectClient(int fd) {
         }
     }
 
-    for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it) {
+    for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end();
+         ++it) {
         it->second.removeMember(fd);
         it->second.removeOperator(fd);
     }
@@ -109,8 +110,9 @@ void Server::initializePoll() {
     pfd.revents = 0;
     _fds.push_back(pfd);
 }
-//AF_INET is IPv4, SOCK_STREAM says that its going to be TCP, SO_REUSEADDR server can reacces the same port
-// INADDR_ANY server will accpet all connections from everywhere
+// AF_INET is IPv4, SOCK_STREAM says that its going to be TCP, SO_REUSEADDR server can reacces the
+// same port
+//  INADDR_ANY server will accpet all connections from everywhere
 void Server::setupSocket() {
     // create socket (AF_INET=IPv4, SOCK_STREAM=TCP, 0=default protocol)
     _serverSocket = socket(AF_INET, SOCK_STREAM, 0);

@@ -76,7 +76,7 @@ void Server::handleTopic(int fd, std::istringstream &iss) {
         channel.setTopic(topic);
 
         std::string msg =
-            ":" + _clients[fd].getNickname() + " TOPIC " + channelName + ": " + topic + "\r\n";
+            ":" + _clients[fd].getNickname() + " TOPIC " + channelName + " :" + topic + "\r\n";
         for (std::set<int>::iterator it = channel.getMembers().begin();
              it != channel.getMembers().end(); ++it) {
             send(*it, msg.c_str(), msg.length(), 0);
