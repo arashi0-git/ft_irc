@@ -21,7 +21,7 @@ void Server::handleKick(int fd, std::istringstream &iss) {
     }
 
     if (channelName[0] != '#') {
-        sendError(fd, "476 " + channelName + " :Invalid channel name");
+        sendError(fd, "476 " + channelName + " :Invalid channel name (Usage: JOIN <#channel>)");
         logCommand("KICK", fd, false);
         return;
     }
@@ -54,7 +54,7 @@ void Server::handleKick(int fd, std::istringstream &iss) {
         }
     }
     if (userFd == -1) {
-        sendError(fd, "401 " + user + " :No such nick");
+        sendError(fd, "401 " + user + " :No such nick/channel");
         logCommand("KICK", fd, false);
         return;
     }

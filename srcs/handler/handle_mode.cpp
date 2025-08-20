@@ -79,14 +79,13 @@
 //     }
 // }
 
-// yuhi
 void Server::handleMode(int fd, std::istringstream &iss) {
     std::string target, mode, param;
     iss >> target >> mode >> param;
 
     // target すら無い → パラメータ不足
     if (target.empty()) {
-        sendError(fd, "461 MODE :Not enough parameters");
+        sendError(fd, "461 :Not enough parameters");
         logCommand("MODE", fd, false);
         return;
     }
@@ -148,7 +147,7 @@ void Server::handleMode(int fd, std::istringstream &iss) {
     bool modeRequiresTarget = (mode == "+o" || mode == "-o");
 
     if (modeRequiresTarget && param.empty()) {
-        sendError(fd, "461 MODE :Not enough parameters");
+        sendError(fd, "461 :Not enough parameters");
         logCommand("MODE", fd, false);
         return;
     }
@@ -167,7 +166,6 @@ void Server::handleMode(int fd, std::istringstream &iss) {
         return;
     }
 
-    // yuhi ban list
     const std::string me = _clients[fd].getNickname();
     if (mode == "b" && param.empty()) {
         // MODE #chan b ＝ Banリスト照会 → 空リスト終端だけ返して静かに終わる

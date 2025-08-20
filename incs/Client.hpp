@@ -13,6 +13,7 @@ class Client {
     std::string _realname;
     std::string _buffer;
     bool _hasPasswordReceived;
+    bool _hasUserReceived;
     bool _authenticated;
 
   public:
@@ -41,6 +42,9 @@ class Client {
 
     void setPasswordReceived(bool value);
     bool hasPasswordReceived() const;
+
+    void setUserReceived(bool value);
+    bool hasUserReceived() const;
 };
 
 #endif

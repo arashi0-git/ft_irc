@@ -46,7 +46,7 @@ void Server::handleJoin(int fd, std::istringstream &iss) {
     Channel &channel = channels[channelName];
 
     if (channel.hasMember(fd)) {
-        sendError(fd, "442 " + channelName + "You are already on that channel");
+        sendError(fd, "442 " + channelName + ":You are already on that channel");
         logCommand("JOIN", fd, false);
         return;
     }
@@ -81,10 +81,10 @@ void Server::handleJoin(int fd, std::istringstream &iss) {
 
     if (channel.getTopic().empty()) {
         std::string reply331 =
-            ":" + _serverName + "331 " + nick + " " + channelName + " :No topic is set\r\n";
+            ":" + _serverName + " 331 " + nick + " " + channelName + " :No topic is set\r\n";
         send(fd, reply331.c_str(), reply331.length(), 0);
     } else {
-        std::string reply332 = ":" + _serverName + "332 " + nick + " " + channelName + " :" +
+        std::string reply332 = ":" + _serverName + " 332 " + nick + " " + channelName + " :" +
                                channel.getTopic() + "\r\n";
         send(fd, reply332.c_str(), reply332.length(), 0);
     }

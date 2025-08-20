@@ -6,6 +6,14 @@ bool Server::canAuthenticate(const Client &client) const {
            !client.getUsername().empty() && !client.getRealname().empty();
 }
 
+void printAuthStatus(Client &cl, int fd) {
+    std::cout << "[AUTH] fd=" << fd << " (PASS:" << (cl.hasPasswordReceived() ? "✔" : "✘")
+              << " NICK:" << (cl.getNickname().empty() ? "✘" : cl.getNickname())
+              << " USER:" << (cl.getUsername().empty() ? "✘" : cl.getUsername())
+              << " REALNAME:" << (cl.getRealname().empty() ? "✘" : cl.getRealname()) << ")"
+              << std::endl;
+}
+
 void Server::sendWelcome(int fd) {
     const Client &client = _clients[fd];
     std::string msg = ":" + _serverName + " 001 " + client.getNickname() +
@@ -24,7 +32,7 @@ void Server::handlePass(int fd, std::istringstream &iss) {
     }
 
     if (_clients[fd].hasPasswordReceived()) {
-        sendError(fd, "462 :You may not reregister");
+        sendError(fd, "462 :You may not register");
         logCommand("PASS", fd, false);
         return;
     }
@@ -41,40 +49,68 @@ void Server::handlePass(int fd, std::istringstream &iss) {
     if (canAuthenticate(_clients[fd])) {
         _clients[fd].setAuthenticated(true);
         sendWelcome(fd);
+    } else {
+        printAuthStatus(_clients[fd], fd);
     }
 }
 
 void Server::handleUser(int fd, std::istringstream &iss) {
-    std::string username;
-    std::string hostname;
-    std::string servername;
+    Client &cl = _clients[fd];
+
+    // 462: already registered 
+    if (cl.hasUserReceived()) {
+        sendError(fd, "462 :You may not register");
+        logCommand("USER", fd, false);
+        return;
+    }
+
+    // USER <username> <mode> <unused> :<realname...>
+    std::string username, mode, unused;
+    if (!(iss >> username >> mode >> unused)) {
+        sendError(fd, "461 USER :Not enough parameters");
+        logCommand("USER", fd, false);
+        return;
+    }
+
+
+    // Grab trailing realname (may contain spaces)
     std::string realname;
+    std::getline(iss, realname);
+    if (!realname.empty() && realname[0] == ' ')
+        realname.erase(0, 1);
+    if (!realname.empty() && realname[0] == ':')
+        realname.erase(0, 1);
 
-    iss >> username >> hostname >> servername >> realname;
-
-    if (username.empty() || realname.empty()) {
-        sendError(fd, "461 :Not enough parameters");
+    if (realname.empty()) {
+        sendError(fd, "461 USER :Not enough parameters");
         logCommand("USER", fd, false);
         return;
     }
 
-    if (realname[0] == ':')
-        realname = realname.substr(1);
-
-    if (_clients[fd].isAuthenticated()) {
-        sendError(fd, "462 :You may not reregister");
-        logCommand("USER", fd, false);
-        return;
-    }
-
-    _clients[fd].setUsername(username);
-    _clients[fd].setRealname(realname);
+    cl.setUsername(username);
+    cl.setRealname(realname);
+    cl.setUserReceived(true);
     logCommand("USER", fd, true);
 
-    if (canAuthenticate(_clients[fd])) {
-        _clients[fd].setAuthenticated(true);
+    if (canAuthenticate(cl)) {
+        cl.setAuthenticated(true);
         sendWelcome(fd);
     }
+    printAuthStatus(cl, fd);
+}
+
+bool isValidNickname(const std::string &nick) {
+    if (nick.empty() || nick.size() > 9)
+        return false;
+    char first = nick[0];
+    if (!isalpha(first) && strchr("[]\\`^{}_", -1) == NULL)
+        return false;
+    for (size_t i = 1; i < nick.size(); i++) {
+        char c = nick[i];
+        if (!isalnum(c) && strchr("[]\\`^{}_", -1) == NULL)
+            return false;
+    }
+    return true;
 }
 
 void Server::handleNick(int fd, std::istringstream &iss) {
@@ -83,6 +119,12 @@ void Server::handleNick(int fd, std::istringstream &iss) {
 
     if (nickname.empty()) {
         sendError(fd, "431 :No nickname given");
+        logCommand("NICK", fd, false);
+        return;
+    }
+
+    if (!isValidNickname(nickname)) {
+        sendError(fd, "432 * " + nickname + " :Erroneous nickname");
         logCommand("NICK", fd, false);
         return;
     }
@@ -104,5 +146,7 @@ void Server::handleNick(int fd, std::istringstream &iss) {
     if (canAuthenticate(_clients[fd])) {
         _clients[fd].setAuthenticated(true);
         sendWelcome(fd);
+    } else {
+        printAuthStatus(_clients[fd], fd);
     }
 }
