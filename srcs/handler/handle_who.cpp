@@ -21,8 +21,8 @@ void Server::handleWho(int fd, std::istringstream &iss) {
 
     // チャンネル指定のWHOだけ対応（それ以外は終端だけ返す）
     if (mask[0] == '#') {
-        std::map<std::string, Channel>::iterator it = channels.find(mask);
-        if (it != channels.end()) {
+        std::map<std::string, Channel>::iterator it = _channels.find(mask);
+        if (it != _channels.end()) {
             Channel &ch = it->second;
 
             // ★ ここが ch.members() の代わり。getMembers() を回す

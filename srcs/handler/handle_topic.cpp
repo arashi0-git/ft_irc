@@ -7,6 +7,13 @@ void Server::handleTopic(int fd, std::istringstream &iss) {
     iss >> channelName;
     getline(iss, topic);
 
+    if (!topic.empty() && topic[0] == ' ') {
+        topic.erase(0, 1);
+    }
+    if (!topic.empty() && topic[0] == ':') {
+        topic.erase(0, 1);
+    }
+
     if (channelName.empty()) {
         sendError(fd, "461 :Not enough parameters");
         logCommand("TOPIC", fd, false);
@@ -19,13 +26,13 @@ void Server::handleTopic(int fd, std::istringstream &iss) {
         return;
     }
 
-    if (channels.find(channelName) == channels.end()) {
+    if (_channels.find(channelName) == _channels.end()) {
         sendError(fd, "403 " + channelName + " :No such channel");
         logCommand("TOPIC", fd, false);
         return;
     }
 
-    Channel &channel = channels[channelName];
+    Channel &channel = _channels[channelName];
 
     if (!channel.hasMember(fd)) {
         sendError(fd, "442 " + channelName + " :You're not on that channel"); 

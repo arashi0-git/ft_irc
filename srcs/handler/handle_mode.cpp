@@ -30,13 +30,13 @@
 //         return;
 //     }
 
-//     if (channels.find(channelName) == channels.end()) {
+//     if (_channels.find(channelName) == _channels.end()) {
 //         sendError(fd, "403 " + channelName + " :No such channel");
 //         logCommand("MODE", fd, false);
 //         return;
 //     }
 
-//     Channel &channel = channels[channelName];
+//     Channel &channel = _channels[channelName];
 
 //     if (!channel.hasMember(fd)) {
 //         sendError(fd, "442 " + channelName + " :You're not on that channel");
@@ -153,13 +153,13 @@ void Server::handleMode(int fd, std::istringstream &iss) {
         return;
     }
 
-    if (channels.find(channelName) == channels.end()) {
+    if (_channels.find(channelName) == _channels.end()) {
         sendError(fd, "403 " + channelName + " :No such channel");
         logCommand("MODE", fd, false);
         return;
     }
 
-    Channel &channel = channels[channelName];
+    Channel &channel = _channels[channelName];
 
     if (!channel.hasMember(fd)) {
         sendError(fd, "442 " + channelName + " :You're not on that channel");
@@ -184,25 +184,22 @@ void Server::handleMode(int fd, std::istringstream &iss) {
 
     // 1文字目は +/-, 2文字目がモード文字の想定（例: "+i", "-o"）
     char modechar = (mode.size() > 1) ? mode[1] : '\0';
+    bool success = false;
     switch (modechar) {
     case 'o':
-        handleModeOperator(fd, channel, mode, param);
-        logCommand("MODE", fd, true);
+        success = handleModeOperator(fd, channel, mode, param);
         break;
     case 'i':
-        handleModeInviteOnly(fd, channel, mode);
-        logCommand("MODE", fd, true);
+        success = handleModeInviteOnly(fd, channel, mode);
         break;
     case 't':
-        handleModeTopic(fd, channel, mode);
-        logCommand("MODE", fd, true);
+        success = handleModeTopic(fd, channel, mode);
         break;
     case 'k':
-        handleModeKey(fd, channel, mode, param);
-        logCommand("MODE", fd, true);
+        success = handleModeKey(fd, channel, mode, param);
         break;
     case 'l':
-        handleModeLimit(fd, channel, mode, param);
+        success = handleModeLimit(fd, channel, mode, param);
         logCommand("MODE", fd, true);
         break;
     default:
@@ -210,4 +207,5 @@ void Server::handleMode(int fd, std::istringstream &iss) {
         logCommand("MODE", fd, false);
         break;
     }
+    logCommand("MODE", fd, success);
 }

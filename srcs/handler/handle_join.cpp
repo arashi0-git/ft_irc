@@ -40,10 +40,10 @@ void Server::handleJoin(int fd, std::istringstream &iss) {
         return;
     }
 
-    if (channels.find(channelName) == channels.end()) {
-        channels[channelName] = Channel(channelName);
+    if (_channels.find(channelName) == _channels.end()) {
+        _channels[channelName] = Channel(channelName);
     }
-    Channel &channel = channels[channelName];
+    Channel &channel = _channels[channelName];
 
     if (channel.hasMember(fd)) {
         sendError(fd, "442 " + channelName + ":You are already on that channel");
