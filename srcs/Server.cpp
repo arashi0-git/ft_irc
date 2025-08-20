@@ -9,6 +9,12 @@ void Server::disconnectClient(int fd) {
             break;
         }
     }
+
+    for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it) {
+        it->second.removeMember(fd);
+        it->second.removeOperator(fd);
+    }
+
     _clients.erase(fd);
     clientBuffer.erase(fd);
 }
