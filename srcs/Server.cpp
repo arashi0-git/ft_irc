@@ -14,6 +14,7 @@ void Server::disconnectClient(int fd) {
          ++it) {
         it->second.removeMember(fd);
         it->second.removeOperator(fd);
+        it->second.removeInvite(fd);
     }
 
     _clients.erase(fd);
