@@ -35,7 +35,7 @@ void Server::handleTopic(int fd, std::istringstream &iss) {
     Channel &channel = _channels[channelName];
 
     if (!channel.hasMember(fd)) {
-        sendError(fd, "442 " + channelName + " :You're not on that channel"); 
+        sendError(fd, "442 " + channelName + " :You're not on that channel");
         logCommand("TOPIC", fd, false);
         return;
     }
@@ -49,6 +49,15 @@ void Server::handleTopic(int fd, std::istringstream &iss) {
             std::string msg2 = ":" + _serverName + " 332 " + _clients[fd].getNickname() + " " +
                                channelName + " :" + channel.getTopic() + "\r\n";
             send(fd, msg2.c_str(), msg2.length(), 0);
+
+            // 333 (FAKE RPL_TOPICWHOTIME)
+            // time_t fakeWhen = time(NULL);
+            // std::ostringstream oss;
+            // oss << fakeWhen;
+
+            // std::string msg3 = ":" + _serverName + " 333 " + _clients[fd].getNickname() + " " +
+            //                    channelName + " " + _serverName + " " + oss.str() + "\r\n";
+            // send(fd, msg3.c_str(), msg3.length(), 0);
         }
         logCommand("TOPIC", fd, true);
     } else {
@@ -57,9 +66,15 @@ void Server::handleTopic(int fd, std::istringstream &iss) {
             logCommand("TOPIC", fd, false);
             return;
         }
+
+        if (!topic.empty() && topic[0] == ' ')
+            topic.erase(0, 1);
+
         if (!topic.empty() && topic[0] == ':')
-            topic = topic.substr(1);
+            topic.erase(0, 1);
+
         channel.setTopic(topic);
+
         std::string msg =
             ":" + _clients[fd].getNickname() + " TOPIC " + channelName + ": " + topic + "\r\n";
         for (std::set<int>::iterator it = channel.getMembers().begin();

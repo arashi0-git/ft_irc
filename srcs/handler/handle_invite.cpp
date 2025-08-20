@@ -52,10 +52,16 @@ void Server::handleInvite(int fd, std::istringstream &iss) {
     }
 
     channel.invite(it->second);
+    // hostname
+    // const Client &me = _clients[fd];
+    //  std::string pfx = me.getNickname() + "!" + me.getUsername() + "@" + me.getHostname();
+    //  std::string msg = ":" + pfx + " INVITE " + nickName + " :" + channelName + "\r\n";
+
     std::string msg =
         ":" + _clients[fd].getNickname() + " INVITE " + nickName + " :" + channelName + "\r\n";
     send(it->second, msg.c_str(), msg.length(), 0);
-    std::string reply = "341 " + _clients[fd].getNickname() + " " + nickName + " :" + channelName + "\r\n";
+    std::string reply = ":" + _serverName + " 341 " + _clients[fd].getNickname() + " " + nickName +
+                        " :" + channelName + "\r\n";
     send(fd, reply.c_str(), reply.length(), 0);
     logCommand("INVITE", fd, true);
 }

@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
 // MODE #channel +o/-o target
-// MODE #channel +i/-i
+// MODE #channel +i/-i 
 // MODE #channel +l/-l limit
 // MODE #channel +t/-t
 // MODE #channel +k/-k key

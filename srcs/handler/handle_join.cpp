@@ -1,7 +1,10 @@
 #include "Server.hpp"
 
+//irssi: /QUOTE JOIN #pen
+
 void Server::sendNamesReply(int fd, const Channel &channel) {
-    std::string reply = "353 " + _clients[fd].getNickname() + " = " + channel.getName() + " :";
+    std::string reply =
+        ":" + _serverName + " 353 " + _clients[fd].getNickname() + " = " + channel.getName() + " :";
     for (std::set<int>::const_iterator it = channel.getMembers().begin();
          it != channel.getMembers().end(); ++it) {
         std::string nick = _clients[*it].getNickname();
@@ -51,7 +54,7 @@ void Server::handleJoin(int fd, std::istringstream &iss) {
         return;
     }
 
-    if(channel.hasLimit()&& channel.getMembers().size()>= channel.getLimit()){
+    if (channel.hasLimit() && channel.getMembers().size() >= channel.getLimit()) {
         sendError(fd, "471 " + channelName + " :Cannot join channel (+l)");
         logCommand("JOIN", fd, false);
         return;
@@ -76,7 +79,12 @@ void Server::handleJoin(int fd, std::istringstream &iss) {
     }
 
     std::string nick = _clients[fd].getNickname();
-    std::string reply = ":" + nick + " JOIN " + channelName + "\r\n";
+
+    // hostname
+    // const std::string nick = _clients[fd].getNickname() + "!" + _clients[fd].getUsername() + "@"
+    // + _clients[fd].getHostname();
+
+    std::string reply = ":" + nick + " JOIN :" + channelName + "\r\n";
     send(fd, reply.c_str(), reply.length(), 0);
 
     if (channel.getTopic().empty()) {
