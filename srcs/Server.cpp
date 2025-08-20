@@ -10,7 +10,7 @@ void Server::disconnectClient(int fd) {
         }
     }
 
-    for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it) {
+    for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
         it->second.removeMember(fd);
         it->second.removeOperator(fd);
     }
