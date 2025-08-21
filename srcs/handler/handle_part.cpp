@@ -11,14 +11,19 @@ void Server::handlePart(int fd, std::istringstream &iss) {
     if (!comment.empty() && comment[0] == ':')
         comment = comment.substr(1);
 
+    std::string sender = _clients[fd].getNickname();
+    if (sender.empty())
+        sender = "*";
+
     if (_channels.find(channelName) == _channels.end()) {
-        sendError(fd, "403 " + channelName + " :No such channel");
+        sendError(fd, "403 " + sender + " " + channelName + " :No such channel");
         logCommand("PART", fd, false);
         return;
     }
 
     if (channelName[0] != '#') {
-        sendError(fd, "476 " + channelName + " :Invalid channel name (Usage: JOIN <#channel>)");
+        sendError(fd, "476 " + sender + " " + channelName +
+                          " :Invalid channel name (Usage: JOIN <#channel>)");
         logCommand("PART", fd, false);
         return;
     }
@@ -26,7 +31,7 @@ void Server::handlePart(int fd, std::istringstream &iss) {
     Channel &channel = _channels[channelName];
 
     if (!channel.hasMember(fd)) {
-        sendError(fd, "442 " + channelName + " :You're not on that channel");
+        sendError(fd, "442 " + sender + " " + channelName + " :You're not on that channel");
         logCommand("PART", fd, false);
         return;
     }

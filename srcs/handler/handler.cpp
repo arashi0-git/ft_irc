@@ -19,8 +19,12 @@ void Server::processCommand(int fd, const std::string &line) {
         return;
     }
 
+    std::string sender = _clients[fd].getNickname();
+    if (sender.empty())
+        sender = "*";
+
     if ((command == "NICK" || command == "USER") && !_clients[fd].hasPasswordReceived()) {
-        sendError(fd, "464 :Password required");
+        sendError(fd, "464 " + sender + " :Password required");
         logCommand(command, fd, false);
         return;
     }
@@ -44,7 +48,7 @@ void Server::processCommand(int fd, const std::string &line) {
         return;
 
     if (!_clients[fd].isAuthenticated()) {
-        sendError(fd, "451 :You have not registered");
+        sendError(fd, "451 " + sender + " :You have not registered");
         logCommand(command, fd, false);
         return;
     }
@@ -68,5 +72,5 @@ void Server::processCommand(int fd, const std::string &line) {
     else if (command == "WHO")
         handleWho(fd, iss);
     else
-        sendError(fd, "421 " + command + " :Unknown command");
+        sendError(fd, "421 " + sender + " " + command + " :Unknown command");
 }

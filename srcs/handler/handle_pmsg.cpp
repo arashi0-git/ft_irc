@@ -40,8 +40,10 @@ static std::vector<std::string> splitByComma(const std::string &targets) {
 // 共通処理：verb は "PRIVMSG" または "NOTICE"
 void Server::handleMessageVerb(int fd, std::istringstream &iss, const std::string &verb) {
     Client &fromCli = _clients[fd];
+    std::string sender = fromCli.getNickname().empty() ? std::string("*") : fromCli.getNickname();
+
     if (!fromCli.isAuthenticated()) {
-        sendError(fd, "451 :You have not registered");
+        sendError(fd, "451 " + sender + " :You have not registered");
         logCommand(verb, fd, false);
         return;
     }
@@ -55,14 +57,14 @@ void Server::handleMessageVerb(int fd, std::istringstream &iss, const std::strin
         message.erase(0, 1);
 
     if (targetsToken.empty()) {
-        if(verb == "PRIVMSG")
-            sendError(fd, std::string("411 :No recipient given (") + verb + ")");
+        if (verb == "PRIVMSG")
+            sendError(fd, std::string("411 " + sender + " :No recipient given (") + verb + ")");
         logCommand(verb, fd, false);
         return;
     }
     if (message.empty()) {
-        if(verb == "PRIVMSG")
-            sendError(fd, "412 :No text to send");
+        if (verb == "PRIVMSG")
+            sendError(fd, "412 " + sender + " :No text to send");
         logCommand(verb, fd, false);
         return;
     }
@@ -77,15 +79,16 @@ void Server::handleMessageVerb(int fd, std::istringstream &iss, const std::strin
             // ---- チャンネル宛 ----
             std::map<std::string, Channel>::iterator chit = _channels.find(target);
             if (chit == _channels.end()) {
-                if(verb == "PRIVMSG")
-                    sendError(fd, "403 " + target + " :No such channel");
+                if (verb == "PRIVMSG")
+                    sendError(fd, "403 " + sender + " " + target + " :No such channel");
                 continue;
             }
             Channel &channel = chit->second;
 
             if (!channel.hasMember(fd)) {
-                if(verb == "PRIVMSG")
-                    sendError(fd, "404 " + channel.getName() + " :Cannot send to channel");
+                if (verb == "PRIVMSG")
+                    sendError(fd, "404 " + sender + " " + channel.getName() +
+                                      " :Cannot send to channel");
                 continue;
             }
 
@@ -110,12 +113,11 @@ void Server::handleMessageVerb(int fd, std::istringstream &iss, const std::strin
                 }
             }
             if (targetFd == -1) {
-                if(verb == "PRIVMSG")
-                    sendError(fd, "401 " + target + " :No such nick/channel");
+                if (verb == "PRIVMSG")
+                    sendError(fd, "401 " + sender + " " + target + " :No such nick/channel");
                 continue;
             }
 
-            const std::string sender = _clients[fd].getNickname();
             const std::string line =
                 ":" + sender + " " + verb + " " + target + " :" + message + "\r\n";
             send(targetFd, line.c_str(), line.size(), 0);

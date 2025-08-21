@@ -10,11 +10,13 @@ PONG <serverName> :<token>
 so the sender knows the connection is alive and can match the reply to the original ping.
 */
 void Server::handlePing(int fd, std::istringstream &iss) {
+
     std::string token;
     // PING <token> or PING :<token>
     if (!(iss >> token) || token.empty()) {
         // 409 ERR_NOORIGIN
-        sendError(fd, "409 :No origin specified");
+        std::string nick = _clients[fd].getNickname();
+        sendError(fd, "409 " + nick + " :No origin specified");
         return;
     }
     // 先頭が ':' なら外す

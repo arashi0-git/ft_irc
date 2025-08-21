@@ -6,20 +6,25 @@ void Server::handleInvite(int fd, std::istringstream &iss) {
     std::string nickName, channelName;
     iss >> nickName >> channelName;
 
+    std::string sender = _clients[fd].getNickname();
+    if (sender.empty())
+        sender = "*";
+
     if (nickName.empty() || channelName.empty()) {
-        sendError(fd, "461 :Not enough parameters");
+        sendError(fd, "461 " + sender + " INVITE :Not enough parameters");
         logCommand("INVITE", fd, false);
         return;
     }
 
     if (channelName[0] != '#') {
-        sendError(fd, "476 " + channelName + " :Invalid channel name (Usage: JOIN <#channel>)");
+        sendError(fd, "476 " + sender + " " + channelName +
+                          " :Invalid channel name (Usage: JOIN <#channel>)");
         logCommand("INVITE", fd, false);
         return;
     }
 
     if (_channels.find(channelName) == _channels.end()) {
-        sendError(fd, "403 " + channelName + " :No such channel");
+        sendError(fd, "403 " + sender + " " + channelName + " :No such channel");
         logCommand("INVITE", fd, false);
         return;
     }
@@ -27,26 +32,27 @@ void Server::handleInvite(int fd, std::istringstream &iss) {
     Channel &channel = _channels[channelName];
 
     if (!channel.hasMember(fd)) {
-        sendError(fd, "442 " + channelName + " :You're not on that channel");
+        sendError(fd, "442 " + sender + " " + channelName + " :You're not on that channel");
         logCommand("INVITE", fd, false);
         return;
     }
 
     if (!channel.isOperator(fd)) {
-        sendError(fd, "482 " + channelName + " :You're not channel operator");
+        sendError(fd, "482 " + sender + " " + channelName + " :You're not channel operator");
         logCommand("INVITE", fd, false);
         return;
     }
 
     std::map<std::string, int>::iterator it = _nickToFd.find(nickName);
     if (it == _nickToFd.end()) {
-        sendError(fd, "401 " + nickName + " :No such nick/channel");
+        sendError(fd, "401 " + sender + " " + nickName + " :No such nick/channel");
         logCommand("INVITE", fd, false);
         return;
     }
 
     if (channel.hasMember(it->second)) {
-        sendError(fd, "443 " + nickName + " " + channelName + " :is already on channel");
+        sendError(fd,
+                  "443 " + sender + " " + nickName + " " + channelName + " :is already on channel");
         logCommand("INVITE", fd, false);
         return;
     }

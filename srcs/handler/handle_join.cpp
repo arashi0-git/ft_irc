@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-//irssi: /QUOTE JOIN #pen
+// irssi: /QUOTE JOIN #pen
 
 void Server::sendNamesReply(int fd, const Channel &channel) {
     std::string reply =
@@ -26,19 +26,20 @@ void Server::handleJoin(int fd, std::istringstream &iss) {
     iss >> channelName >> key;
 
     if (!_clients[fd].isAuthenticated()) {
-        sendError(fd, "451 :You have not registered");
+        sendError(fd, "451 " + _clients[fd].getNickname() + " :You have not registered");
         logCommand("JOIN", fd, false);
         return;
     }
 
     if (channelName.empty()) {
-        sendError(fd, "461 :Not enough parameters");
+        sendError(fd, "461 " + _clients[fd].getNickname() + " JOIN :Not enough parameters");
         logCommand("JOIN", fd, false);
         return;
     }
 
     if (channelName[0] != '#') {
-        sendError(fd, "476 " + channelName + " :Invalid channel name (Usage: JOIN <#channel>)");
+        sendError(fd, "476 " + _clients[fd].getNickname() + " " + channelName +
+                          " :Invalid channel name (Usage: JOIN <#channel>)");
         logCommand("JOIN", fd, false);
         return;
     }
@@ -49,25 +50,29 @@ void Server::handleJoin(int fd, std::istringstream &iss) {
     Channel &channel = _channels[channelName];
 
     if (channel.hasMember(fd)) {
-        sendError(fd, "442 " + channelName + " :You are already on that channel");
+        sendError(fd, "442 " + _clients[fd].getNickname() + " " + channelName +
+                          " :You are already on that channel");
         logCommand("JOIN", fd, false);
         return;
     }
 
     if (channel.hasLimit() && channel.getMembers().size() >= channel.getLimit()) {
-        sendError(fd, "471 " + channelName + " :Cannot join channel (+l)");
+        sendError(fd, "471 " + _clients[fd].getNickname() + " " + channelName +
+                          " :Cannot join channel (+l)");
         logCommand("JOIN", fd, false);
         return;
     }
 
     if (channel.isInviteOnly() && !channel.isInvited(fd)) {
-        sendError(fd, "473 " + channelName + " :Cannot join channel (+i)");
+        sendError(fd, "473 " + _clients[fd].getNickname() + " " + channelName +
+                          " :Cannot join channel (+i)");
         logCommand("JOIN", fd, false);
         return;
     }
 
     if (channel.hasKey() && channel.getKey() != key) {
-        sendError(fd, "475 " + channelName + " :Cannot join channel (+k)");
+        sendError(fd, "475 " + _clients[fd].getNickname() + " " + channelName +
+                          " :Cannot join channel (+k)");
         logCommand("JOIN", fd, false);
         return;
     }

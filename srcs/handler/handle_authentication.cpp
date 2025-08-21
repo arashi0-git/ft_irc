@@ -26,19 +26,19 @@ void Server::handlePass(int fd, std::istringstream &iss) {
     iss >> password;
 
     if (password.empty()) {
-        sendError(fd, "461 :Not enough parameters");
+        sendError(fd, "461 * PASS :Not enough parameters");
         logCommand("PASS", fd, false);
         return;
     }
 
     if (_clients[fd].hasPasswordReceived()) {
-        sendError(fd, "462 :You may not register");
+        sendError(fd, "462 * :You may not register");
         logCommand("PASS", fd, false);
         return;
     }
 
     if (password != _config.getPassword()) {
-        sendError(fd, "464 :Password incorrect");
+        sendError(fd, "464 * :Password incorrect");
         logCommand("PASS", fd, false);
         return;
     }
@@ -56,10 +56,13 @@ void Server::handlePass(int fd, std::istringstream &iss) {
 
 void Server::handleUser(int fd, std::istringstream &iss) {
     Client &cl = _clients[fd];
+    std::string nickname = cl.getNickname();
+    if (nickname.empty())
+        nickname = "*";
 
-    // 462: already registered 
+    // 462: already registered
     if (cl.hasUserReceived()) {
-        sendError(fd, "462 :You may not register");
+        sendError(fd, "462 " + nickname + " :You may not register");
         logCommand("USER", fd, false);
         return;
     }
@@ -67,11 +70,10 @@ void Server::handleUser(int fd, std::istringstream &iss) {
     // USER <username> <mode> <unused> :<realname...>
     std::string username, mode, unused;
     if (!(iss >> username >> mode >> unused)) {
-        sendError(fd, "461 USER :Not enough parameters");
+        sendError(fd, "461 " + nickname + " USER :Not enough parameters");
         logCommand("USER", fd, false);
         return;
     }
-
 
     // Grab trailing realname (may contain spaces)
     std::string realname;
@@ -82,7 +84,7 @@ void Server::handleUser(int fd, std::istringstream &iss) {
         realname.erase(0, 1);
 
     if (realname.empty()) {
-        sendError(fd, "461 USER :Not enough parameters");
+        sendError(fd, "461 " + nickname + " USER :Not enough parameters");
         logCommand("USER", fd, false);
         return;
     }
@@ -118,7 +120,7 @@ void Server::handleNick(int fd, std::istringstream &iss) {
     iss >> nickname;
 
     if (nickname.empty()) {
-        sendError(fd, "431 :No nickname given");
+        sendError(fd, "431 * :No nickname given");
         logCommand("NICK", fd, false);
         return;
     }
@@ -130,7 +132,7 @@ void Server::handleNick(int fd, std::istringstream &iss) {
     }
 
     if (_nickToFd.find(nickname) != _nickToFd.end() && _nickToFd[nickname] != fd) {
-        sendError(fd, "433 :Nickname is already in use");
+        sendError(fd, "433 * " + nickname + " :Nickname is already in use");
         logCommand("NICK", fd, false);
         return;
     }
