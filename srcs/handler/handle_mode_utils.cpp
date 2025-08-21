@@ -3,32 +3,32 @@
 
 bool Server::handleModeOperator(int fd, Channel &channel, const std::string &mode,
                                 const std::string &target) {
+    const std::string nick = _clients[fd].getNickname();
     std::map<std::string, int>::iterator it = _nickToFd.find(target);
     if (it == _nickToFd.end()) {
-        sendError(fd, "401 " + target + " :No such nick/channel");
+        sendError(fd, "401 " + nick + " " + target + " :No such nick/channel");
         return false;
     }
 
     int targetFd = it->second;
     if (!channel.hasMember(targetFd)) {
-        sendError(fd, "441 " + target + " " + channel.getName() + " :They aren't on that channel");
+        sendError(fd, "441 " + nick + " " + target + " " + channel.getName() + " :They aren't on that channel");
         return false;
     }
 
     if (mode == "+o") {
         if (channel.isOperator(targetFd)) {
-            sendError(fd, "482 " + channel.getName() + " :You're not channel operator");
-            return false;
+            return true;
         }
         channel.addOperator(targetFd); // set ignores duplicates.
     } else if (mode == "-o") {
         if (!channel.isOperator(targetFd)) {
-            sendError(fd, "482 " + channel.getName() + " :You're not channel operator");
-            return false;
+            return true;
         }
         channel.removeOperator(targetFd); // if fd doesn't exist, nothing happens
     } else {
-        sendError(fd, "472 " + mode + ":is unknown mode char to me");
+        char ch = (mode.size() > 1) ? mode[1] : (mode.empty() ? '?' : mode[0]);
+        sendError(fd, "472 " + nick + " " + std::string(1, ch) + " :is unknown mode char to me");
         return false;
     }
 
@@ -42,12 +42,14 @@ bool Server::handleModeOperator(int fd, Channel &channel, const std::string &mod
 }
 
 bool Server::handleModeInviteOnly(int fd, Channel &channel, const std::string &mode) {
+    const std::string nick = _clients[fd].getNickname();
     if (mode == "+i") {
         channel.setInviteOnly(true);
     } else if (mode == "-i") {
         channel.setInviteOnly(false);
     } else {
-        sendError(fd, "472 " + mode + ":is unknown mode char to me");
+        char ch = (mode.size() > 1) ? mode[1] : (mode.empty() ? '?' : mode[0]);
+        sendError(fd, "472 " + nick + " " + std::string(1, ch) + " :is unknown mode char to me");
         return false;
     }
     std::string msg =
@@ -60,12 +62,14 @@ bool Server::handleModeInviteOnly(int fd, Channel &channel, const std::string &m
 }
 
 bool Server::handleModeTopic(int fd, Channel &channel, const std::string &mode) {
+    const std::string nick = _clients[fd].getNickname();
     if (mode == "+t") {
         channel.setTopicFlag(true);
     } else if (mode == "-t") {
         channel.setTopicFlag(false);
     } else {
-        sendError(fd, "472 " + mode + ":is unknown mode char to me");
+        char ch = (mode.size() > 1) ? mode[1] : (mode.empty() ? '?' : mode[0]);
+        sendError(fd, "472 " + nick + " " + std::string(1, ch) + " :is unknown mode char to me");
         return false;
     }
     std::string msg =
@@ -79,20 +83,22 @@ bool Server::handleModeTopic(int fd, Channel &channel, const std::string &mode) 
 
 bool Server::handleModeKey(int fd, Channel &channel, const std::string &mode,
                            const std::string &key) {
+    const std::string nick = _clients[fd].getNickname();
     if (mode == "+k") {
         if (channel.hasKey()) {
-            sendError(fd, "467 " + channel.getName() + " :Channel key already set");
+            sendError(fd, "467 " + nick + " " + channel.getName() + " :Channel key already set");
             return false;
         }
         if (key.empty()) {
-            sendError(fd, "461 " + channel.getName() + " :Not enough parameters");
+            sendError(fd, "461 " + nick + " MODE :Not enough parameters");
             return false;
         }
         channel.setKey(key);
     } else if (mode == "-k") {
         channel.removeKey();
     } else {
-        sendError(fd, "472 " + mode + " :is unknown mode char to me");
+        char ch = (mode.size() > 1) ? mode[1] : (mode.empty() ? '?' : mode[0]);
+        sendError(fd, "472 " + nick + " " + std::string(1, ch) + " :is unknown mode char to me");
         return false;
     }
 
@@ -110,16 +116,18 @@ bool Server::handleModeKey(int fd, Channel &channel, const std::string &mode,
 
 bool Server::handleModeLimit(int fd, Channel &channel, const std::string &mode,
                              const std::string &limit) {
+    const std::string nick = _clients[fd].getNickname();
     if (mode == "+l") {
         if (limit.empty() || !isNumeric(limit)) {
-            sendError(fd, "461 " + channel.getName() + " :Not enough parameters");
+            sendError(fd, "461 " + nick + " MODE :Not enough parameters");
             return false;
         }
         channel.setLimit(std::atoi(limit.c_str()));
     } else if (mode == "-l") {
         channel.removeLimit();
     } else {
-        sendError(fd, "472 " + mode + " :is unknown mode char to me");
+        char ch = (mode.size() > 1) ? mode[1] : (mode.empty() ? '?' : mode[0]);
+        sendError(fd, "472 " + nick + " " + std::string(1, ch) + " :is unknown mode char to me");
         return false;
     }
 
