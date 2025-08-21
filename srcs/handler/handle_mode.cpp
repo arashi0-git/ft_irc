@@ -136,9 +136,10 @@
 void Server::handleMode(int fd, std::istringstream &iss) {
     std::string target, mode, param;
     iss >> target >> mode >> param;
+    const std::string nick = _clients[fd].getNickname();
     // target すら無い → パラメータ不足
     if (target.empty()) {
-        sendError(fd, "461 :Not enough parameters");
+        sendError(fd, "461 " + nick + " MODE :Not enough parameters");
         logCommand("MODE", fd, false);
         return;
     }
@@ -157,7 +158,7 @@ void Server::handleUserMode(int fd, const std::string &target, const std::string
     // 自分以外のユーザMODE変更は不可
     if (target != nick) {
         // 502 ERR_USERSDONTMATCH
-        sendError(fd, "502 :Cannot change mode for other users");
+        sendError(fd, "502 " + nick + " :Cannot change mode for other users");
         logCommand("MODE", fd, false);
         return;
     }
@@ -182,17 +183,17 @@ void Server::handleUserMode(int fd, const std::string &target, const std::string
 
     // それ以外のユーザMODEフラグは未対応
     // 501 ERR_UMODEUNKNOWNFLAG
-    sendError(fd, "501 :Unknown MODE flag");
+    sendError(fd, "501 " + nick + " :Unknown MODE flag");
     logCommand("MODE", fd, false);
     return;
 }
 
 void Server::handleChannelMode(int fd, const std::string &channelName, const std::string &mode, const std::string &param) {
      // モード指定なしの照会（MODE #chan）→ 最低限 324 を返しておく（空でも可）
+     const std::string nick = _clients[fd].getNickname();
     if (mode.empty()) {
         // 324 RPL_CHANNELMODEIS <nick> #chan <modes>
         // いまはモード文字列を空にしておく（必要なら Channel から組み立て）
-        const std::string nick = _clients[fd].getNickname();
         std::string reply =  ":" + _serverName + " 324 " + nick + " " + channelName + " :\r\n";
         send(fd, reply.c_str(), reply.length(), 0);
         logCommand("MODE", fd, true);
@@ -202,13 +203,13 @@ void Server::handleChannelMode(int fd, const std::string &channelName, const std
     bool modeRequiresParam = (mode == "+o" || mode == "-o");
 
     if (modeRequiresParam && param.empty()) {
-        sendError(fd, "461 :Not enough parameters");
+        sendError(fd, "461 " + nick + " MODE :Not enough parameters");
         logCommand("MODE", fd, false);
         return;
     }
 
     if (_channels.find(channelName) == _channels.end()) {
-        sendError(fd, "403 " + channelName + " :No such channel");
+        sendError(fd, "403 " + nick + " " + channelName + " :No such channel");
         logCommand("MODE", fd, false);
         return;
     }
@@ -216,23 +217,22 @@ void Server::handleChannelMode(int fd, const std::string &channelName, const std
     Channel &channel = _channels[channelName];
 
     if (!channel.hasMember(fd)) {
-        sendError(fd, "442 " + channelName + " :You're not on that channel");
+        sendError(fd, "442 " + nick + " " + channelName + " :You're not on that channel");
         logCommand("MODE", fd, false);
         return;
     }
     
-    const std::string me = _clients[fd].getNickname();
 
     if (mode == "b" && param.empty()) {
         // MODE #chan b ＝ Banリスト照会 → 空リスト終端だけ返して静かに終わる
-        std::string msg = ":" + _serverName + " 368 " + me + " " + channelName + " :End of channel ban list\r\n";
+        std::string msg = ":" + _serverName + " 368 " + nick + " " + channelName + " :End of channel ban list\r\n";
         send(fd, msg.c_str(), msg.length(), 0);
         logCommand("MODE", fd, true);
         return;
     }
 
     if (!channel.isOperator(fd)) {
-        sendError(fd, "482 " + channelName + " :You're not channel operator");
+        sendError(fd, "482 " + nick + " " + channelName + " :You're not channel operator");
         logCommand("MODE", fd, false);
         return;
     }
@@ -256,7 +256,7 @@ void Server::handleChannelMode(int fd, const std::string &channelName, const std
         success = handleModeLimit(fd, channel, mode, param);
         break;
     default:
-        sendError(fd, "472 " + std::string(1, modechar) + " :is unknown mode char to me");
+         sendError(fd, "472 " + nick + " " + std::string(1, modechar) + " :is unknown mode char to me");
         break;
     }
     logCommand("MODE", fd, success);
