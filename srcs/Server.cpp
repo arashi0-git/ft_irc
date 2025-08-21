@@ -17,6 +17,13 @@ void Server::disconnectClient(int fd) {
         it->second.removeInvite(fd);
     }
 
+    for (std::map<std::string, int>::iterator it = _nickToFd.begin(); it != _nickToFd.end(); ++it) {
+        if (it->second == fd) {
+            _nickToFd.erase(it);
+            break;
+        }
+    }
+
     _clients.erase(fd);
     _clientBuffer.erase(fd);
 }
