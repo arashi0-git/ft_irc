@@ -54,6 +54,8 @@ class Server {
     void sendError(int fd, const std::string &message);
     void sendWelcome(int fd);
     bool canAuthenticate(const Client &client) const;
+    void handleUserMode(int fd, const std::string &target, const std::string &mode);
+    void handleChannelMode(int fd, const std::string &channelName, const std::string &mode, const std::string &param);
     bool handleModeOperator(int fd, Channel &channel, const std::string &mode,
                             const std::string &target);
     bool handleModeInviteOnly(int fd, Channel &channel, const std::string &mode);
