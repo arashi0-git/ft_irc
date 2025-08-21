@@ -151,10 +151,11 @@ Server::Server(const ServerConfig &config)
 }
 
 bool Server::isNumeric(const std::string &str) const {
-    if (str.empty())
+    if (str.empty() || str.size() > 3)
         return false;
     for (size_t i = 0; i < str.length(); ++i) {
-        if (!std::isdigit(str[i]))
+        unsigned char uc = static_cast<unsigned char>(str[i]);
+        if (!std::isdigit(uc))
             return false;
     }
     return true;

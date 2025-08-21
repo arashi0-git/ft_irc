@@ -116,6 +116,7 @@ bool Server::handleModeLimit(int fd, Channel &channel, const std::string &mode,
             return false;
         }
         channel.setLimit(std::atoi(limit.c_str()));
+        
     } else if (mode == "-l") {
         channel.removeLimit();
     } else {
