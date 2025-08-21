@@ -9,7 +9,7 @@ ServerConfig::ServerConfig(int ac, char **av) {
     int port;
 
     // iss >> port parses text from a string stream (iss) into a number variable (port).
-    if (!(iss >> port) || port <= 0 || port > 65535)
+    if (!(iss >> port) || !(iss.eof()) || port <= 0 || port > 65535)
         throw std::invalid_argument("Invalid port number");
 
     _port = port;
